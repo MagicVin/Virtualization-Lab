@@ -31,4 +31,6 @@ Virtualization is a concept that creates virtualized resources and maps them to 
 	* OS-Level Virtualization        
 
 3. #### Application virtualization
-   > Application virtualization is technology that allows users to access and use an application from a separate computer than the one on which the application is installed. [[Citrix]](https://www.citrix.com/solutions/vdi-and-daas/what-is-application-virtualization.html)
+   > It is technology that allows users to access and use an application from a separate computer than the one on which the application is installed. [[Citrix]](https://www.citrix.com/solutions/vdi-and-daas/what-is-application-virtualization.html)
+4. #### Network virtualization
+   > It is the transformation of a network that was once hardware-dependent into a network that is software-based. Like all forms of IT virtualization, the basic goal of network virtualization is to introduce a layer of abstraction between physical hardware and the activities that utilize that hardware. [[RedHat](https://www.redhat.com/en/topics/virtualization/what-is-network-virtualization)]
