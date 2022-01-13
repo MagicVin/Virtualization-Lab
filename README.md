@@ -17,19 +17,17 @@ Virtualization is a concept that creates virtualized resources and maps them to 
 1. #### Desktop virtualization
 	> It is technology that lets users simulate a workstation load to access a desktop from a connected device.  [[Citrix]](https://www.citrix.com/solutions/vdi-and-daas/what-is-desktop-virtualization.html) 
 	
-	| The types of Desktop Virtualization|
-	----------------------------------------------
-	| * Virtual desktop infrastructure (VDI)  |
-	| * Remote desktop services (RDS)         |
-	| * Desktop-as-a-Service (DaaS)              |
+	**The types of Desktop Virtualization**
+	* Virtual desktop infrastructure (VDI)  
+	* Remote desktop services (RDS)         
+	* Desktop-as-a-Service (DaaS)            
 	
  2. #### Server virtualization
     > It is the process of dividing a physical server into multiple unique and isolated virtual servers by means of a software application. Each virtual server can run its own operating systems independently. [[VMware](https://www.vmware.com/topics/glossary/content/server-virtualization.html)]
    
-	  |The types of Server virtualization	|
-	  ----------------------------------------
-	  | * Full Virtualization                           |
-	   | * Para-Virtualization                     |
-	  | * OS-Level Virtualization              |
+	**The types of Server virtualization**
+	* Full Virtualization        
+	* Para-Virtualization     
+	* OS-Level Virtualization        
 
 3. #### Application virtualization
