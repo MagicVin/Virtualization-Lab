@@ -46,3 +46,7 @@ Virtualization is a concept that creates virtualized resources and maps them to 
 
 2. #### Full virtualization
    > A virtual machine is used to simulate regular hardware while not being aware of the fact that it's virtualized. We don't have to modify the guest OS(use Native OS). 
+3. #### Software-based
+   > Uses binary translation to virtualize the execution of sensitive instruction sets while emulating hardware using software, which increases overhead and impacts scalability.
+4. #### Hardware-based
+   > Removes binary translation from the equation while interfacing with a CPU's virtualization features(AMD-V, Intel-VT), which means that instruction sets are being executed directly on the host CPU. This is what KVM does(as well as other popular htpervisors, such as ESXi, Hyper-V and Xen).
