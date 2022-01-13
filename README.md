@@ -31,3 +31,4 @@ Virtualization is a concept that creates virtualized resources and maps them to 
 	* OS-Level Virtualization        
 
 3. #### Application virtualization
+   > Application virtualization is technology that allows users to access and use an application from a separate computer than the one on which the application is installed. [[Citrix]](https://www.citrix.com/solutions/vdi-and-daas/what-is-application-virtualization.html)
