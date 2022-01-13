@@ -9,7 +9,7 @@
 ## Linux Virtualization
 Virtualization is a concept that creates virtualized resources and maps them to physical resources.   
 👀the book ***[Mastering KVM Virtualization](https://www.packtpub.com/product/mastering-kvm-virtualization-second-edition/9781838828714)***
-> [This RM Author is me:](https://github.com/MagicVin) Virtualization is a resource management technology, it's a management subject 😃.  
+> [I'm here:](https://github.com/MagicVin) Virtualization is a resource management technology, it's a management subject 😃.  
 
 ## Type of virtualization
 ### What you are virtualizing -- five different types of virtualization
@@ -39,3 +39,10 @@ Virtualization is a concept that creates virtualized resources and maps them to 
    > It is the process of presenting a logical view of the physical storage resources to a host computer system, treating all storage media(hard disk, optical disk, tape, etc.) in the enterprise as a single pool of storage.[[Wikipedia]](https://en.wikipedia.org/wiki/Storage_virtualization)
 
     A newer concept **Software-Defined Storage(SDS)**. This is a technology that creates virtual storage devices out of pooled, physical storage device that we can centrally manage as a single storage device. This means that we're creating some of sort of abstraction layer that's going to isolate the internal functionality of storage devices from computers, applications, and other types of resources.
+
+### How we are virtualizing -- there are different types of virtualization
+1. #### Partitioning
+   > This is a type of virtualization in which a CPU is divided into different parts, and each part works as an individual system. This type of virtualization solution isolates a server into partitions, each of which can run a speparate OS.
+
+2. #### Full virtualization
+   > A virtual machine is used to simulate regular hardware while not being aware of the fact that it's virtualized. We don't have to modify the guest OS(use Native OS). 
