@@ -101,3 +101,8 @@ The following table is a list of open source virtualization projects in Linux:
   * Dom0: Xen's control domain, which controls a virtual machine's environment. The main part of it is called QEMU, a piece of software that emulates a regular computer system by doing binary translation to emulate a CPU.
   * Management utilities: Command-line utilities and GUI utilities that we use to manage the overall Xen environment.
   * Virtual machines(unprivileged domains, DomU): Guests that we're running on Xen.
+
+* KVM
+  > KVM represents the latest generation of open source virtulization. The goal of the project was to create a modern hypervisor that builds on the experience of previous generations of technologies and leverages the modern hardware available today(VT-x, AMD-V, and so on). 
+  > KVM simply turns the Linux kernel into a hypervisor when you install the KVM kernel module. However, as the standard Linux kernel is the hypervisor, it benefits from the changes that were made to the standard kernel(memory support, scheduler, and so on).
+  > For I/O emulations, KVM uses a userland software, QEMU, this is a userland program that does hardware emulation.
