@@ -70,4 +70,22 @@ The system hardware, such as the processor, memory, and so on, must be allocated
 1. If the VMM/hypervisor runs directly on top of the hardware, its generally considered to be a type 1 hypervisor.  
    It doesn't need any host OS. You can directly install it on a bare-metal system and make it ready to host virtual machines.  
    Type 1 hypervisor directly interacts with the system hardware. Type 1 hypervisors are also called bare-metal, embedded, or native hypervisors.  
+   
+     
+     
+      3️⃣ VM1 ... VMn   
+      ooooooooooooooo  
+      2️⃣  Hpervisor    
+      ooooooooooooooo  
+      1️⃣  Hardware   
+      ooooooooooooooo  
+  
+
+   
+   
+   
+   
+   
+   
+   
 3. If there is an OS present, and if the VMM/hypervisor operates as a separate layer, it will be considered as a type 2 hypervisor.  
