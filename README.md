@@ -86,12 +86,12 @@ The system hardware, such as the processor, memory, and so on, must be allocated
    |1L     | Hardware    |Hardware    |  
 ## Open source virtualization projects
 The following table is a list of open source virtualization projects in Linux:
-| Project        |
-|-----------------
-| KVM            |
-| VirtualBox     |
-| Xen            |
-| ...
+| Project        | Virtualization type         | 
+| :--------------| :---------------------------|
+| KVM            | Full virtualization         |
+| VirtualBox     | Full virtualization         |
+| Xen            | Full and Paravirtualization |
+| ...            | ...                         |
 
 
 
