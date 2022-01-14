@@ -75,13 +75,5 @@ The system hardware, such as the processor, memory, and so on, must be allocated
       2F  Hpervisor    
       1F  Hardware   
 
-  
-
-   
-   
-   
-   
-   
-   
-   
-3. If there is an OS present, and if the VMM/hypervisor operates as a separate layer, it will be considered as a type 2 hypervisor.  
+* Type 2 Hypervisor
+> If there is an OS present, and if the VMM/hypervisor operates as a separate layer, and it resides on the top of the OS, it will be considered as a type 2 hypervisor. 
