@@ -67,18 +67,14 @@ The system hardware, such as the processor, memory, and so on, must be allocated
 ### Two types of hypervisor
 > Hypervisors are mainly categorized as either type 1 or type 2 hypervisors, based on where they reside in the systems or, in other terms, whether the underlying OS is present in the system or not. But there is no clear or standard definition of type 1 and type 2 hypervisors.  
 
-1. If the VMM/hypervisor runs directly on top of the hardware, its generally considered to be a type 1 hypervisor.  
-   It doesn't need any host OS. You can directly install it on a bare-metal system and make it ready to host virtual machines.  
-   Type 1 hypervisor directly interacts with the system hardware. Type 1 hypervisors are also called bare-metal, embedded, or native hypervisors.  
-   
-     
-     
-      3️⃣ VM1 ... VMn   
-      ooooooooooooooo  
-      2️⃣  Hpervisor    
-      ooooooooooooooo  
-      1️⃣  Hardware   
-      ooooooooooooooo  
+* Type 1 Hypervisor
+  > If the VMM/hypervisor runs directly on top of the hardware, its generally considered to be a type 1 hypervisor.It doesn't need any host OS. You can directly install it on a bare-metal system and make it ready to host virtual machines. Type 1 hypervisor directly interacts with the system hardware. Type 1 hypervisors are also called bare-metal, embedded, or native hypervisors.  
+ 
+   Layer of type 1:  
+      3️F  VM1 ... VMn   
+      2F  Hpervisor    
+      1F  Hardware   
+
   
 
    
