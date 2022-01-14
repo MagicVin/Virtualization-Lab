@@ -55,4 +55,11 @@ Virtualization is a concept that creates virtualized resources and maps them to 
 
 ## Using the hypervisor/virtual machine manager
 ### What is Hypervisor/VMM ?
-As its name suggests, the Virtual Machine Manager(VMM) or hypersior is a piece of software that is responsible for monitoring and controlling virtual machines or guest OSes. The hypervisor/VMM is responsible for ensuring different virtualization management tasks, such as providing virtual hardware, virtual machine lift cycle management, migrating virtual machines, allocating resources in real time, defining policies for virtual machine management, and so on. The VMM/hypervisor is also responsible for efficiently controlling pyhsical platform resources, shuch as memory translation and I/O mapping. One of the main advantages of virtualization software is its capability to run multiple guests operating on the same physical system or hardware. These multiple guest systems can be on the same OS or different ones. For example, there can be multiple Linux guest systems running as guests on the same physical system. The VMM is responsible for allocating the resources requested by these guest OSes. The system hardware, such as the processor, memory, and so on, must be allocated to these guest OSes according to their configuration, and the VMM can take care of this task. Due to this, the VMM is a critical component in a virtualization environment.
+As its name suggests, the Virtual Machine Manager(VMM) or hypersior is a piece of software that is responsible for monitoring and controlling virtual machines or guest OSes. 
+
+The hypervisor/VMM is responsible for 
+* Ensuring different virtualization management tasks, such as providing virtual hardware, virtual machine lift cycle management, migrating virtual machines, allocating resources in real time, defining policies for virtual machine management, and so on.  
+* Efficiently controlling pyhsical platform resources, shuch as memory translation and I/O mapping.  
+* Allocating the resources requested by these guest OSes.  
+
+The system hardware, such as the processor, memory, and so on, must be allocated to these guest OSes according to their configuration, and the VMM can take care of this task. Due to this, the VMM is a critical component in a virtualization environment.
