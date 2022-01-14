@@ -1,8 +1,4 @@
 
-
-
-> Written with [StackEdit](https://stackedit.io/).
-
 # Virtualization-Lab
 
 
@@ -56,3 +52,7 @@ Virtualization is a concept that creates virtualized resources and maps them to 
    > This is a type of virtualization that uses full virtualization and paravirtualization's biggest virtues - the fact that the guest OS can be run unmodified(full), and the fact that we can insert additional paravirtualizatied drivers into the virtual machine to work with some specific aspects of virtual machine work(most often, I/O intensive memory workloads). Xen and ESXi can also work in hybrid virtualization mode.
 7. #### Container-based virtualization
    > This is a type of application virtualization that uses containers. A container is an object that packages an application and all its dependencies so that the application can be scaled out and rapidly deployed without needing a virtual machine or a hypervisor. Keep in mind that there are technologies that can operate as both a hypervisor and a container host at the same time. Some examples of this type of technology include Docker and Podman(a replacement for Docker in RedHat Enterprise Linux 8).
+
+## Using the hypervisor/virtual machine manager
+### What is Hypervisor/VMM ?
+As its name suggests, the Virtual Machine Manager(VMM) or hypersior is a piece of software that is responsible for monitoring and controlling virtual machines or guest OSes. The hypervisor/VMM is responsible for ensuring different virtualization management tasks, such as providing virtual hardware, virtual machine lift cycle management, migrating virtual machines, allocating resources in real time, defining policies for virtual machine management, and so on. The VMM/hypervisor is also responsible for efficiently controlling pyhsical platform resources, shuch as memory translation and I/O mapping. One of the main advantages of virtualization software is its capability to run multiple guests operating on the same physical system or hardware. These multiple guest systems can be on the same OS or different ones. For example, there can be multiple Linux guest systems running as guests on the same physical system. The VMM is responsible for allocating the resources requested by these guest OSes. The system hardware, such as the processor, memory, and so on, must be allocated to these guest OSes according to their configuration, and the VMM can take care of this task. Due to this, the VMM is a critical component in a virtualization environment.
