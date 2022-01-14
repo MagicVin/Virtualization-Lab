@@ -76,4 +76,11 @@ The system hardware, such as the processor, memory, and so on, must be allocated
       1F  Hardware   
 
 * Type 2 Hypervisor
-> If there is an OS present, and if the VMM/hypervisor operates as a separate layer, and it resides on the top of the OS, it will be considered as a type 2 hypervisor. 
+> If there is an OS present, and if the VMM/hypervisor operates as a separate layer, and it resides on the top of the OS, it will be considered as a type 2 hypervisor. Type 2 hypervisor are knowns as hosted hypervisors that are dependent on the host OS for their operations. The main advantage of type 2 hypervisors is the wide range of hardware support, because the underlying host OS controls hardware access.
+
+  Layer of type 2:
+     4F VM1 ... VMn  
+     3F Hypervisor  
+     2F Host OS  
+     1F Hardware  
+     
