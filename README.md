@@ -78,9 +78,20 @@ The system hardware, such as the processor, memory, and so on, must be allocated
 * Type 2 Hypervisor
   > If there is an OS present, and if the VMM/hypervisor operates as a separate layer, and it resides on the top of the OS, it will be considered as a type 2 hypervisor. Type 2 hypervisor are knowns as hosted hypervisors that are dependent on the host OS for their operations. The main advantage of type 2 hypervisors is the wide range of hardware support, because the underlying host OS controls hardware access.  
 
-   Layer of type 2:  
-      4L VM1 ... VMn  
-      3L Hypervisor  
-      2L Host OS  
-      1L Hardware  
-     
+   | Layer | Type 1      | Type 2     |
+   | :-----| :-----------| :----------|
+   |4L     | /           |VM1 &#124; VM2 | 
+   |3L     | VM1 &#124; VM2 |Hypervisor  |
+   |2L     | Hypervisor  |Host OS     |
+   |1L     | Hardware    |Hardware    |  
+## Open source virtualization projects
+The following table is a list of open source virtualization projects in Linux:
+| Project        |
+|-----------------
+| KVM            |
+| VirtualBox     |
+| Xen            |
+| ...
+
+
+
