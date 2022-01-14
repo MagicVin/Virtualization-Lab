@@ -50,3 +50,7 @@ Virtualization is a concept that creates virtualized resources and maps them to 
    > Uses binary translation to virtualize the execution of sensitive instruction sets while emulating hardware using software, which increases overhead and impacts scalability.
 4. #### Hardware-based
    > Removes binary translation from the equation while interfacing with a CPU's virtualization features(AMD-V, Intel-VT), which means that instruction sets are being executed directly on the host CPU. This is what KVM does(as well as other popular htpervisors, such as ESXi, Hyper-V and Xen).
+5. #### Paravirtualization
+   > This is a type of virtualization in which the guest OS understands the fact that it's being virtualized and needs to be modified, along with its drivers, so that it can run on top of the virtualization solution. At the same time, it doesn't need CPU virtualization extensions to able to run a virtual machine. For example, Xen can work as a paravirtualized solution.
+6. #### Hybrid virtualization
+   > This is a type of virtualization that uses full virtualization and paravirtualization's biggest virtues - the fact that the guest OS can be run unmodified(full), and the fact that we can insert additional paravirtualizatied drivers into the virtual machine to work with some specific aspects of virtual machine work(most often, I/O intensive memory workloads). Xen and ESXi can also work in hybrid virtualization mode.
