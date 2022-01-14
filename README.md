@@ -55,7 +55,7 @@ Virtualization is a concept that creates virtualized resources and maps them to 
 
 ## Using the hypervisor/virtual machine manager
 ### What is Hypervisor/VMM ?
-As its name suggests, the Virtual Machine Manager(VMM) or hypersior is a piece of software that is responsible for monitoring and controlling virtual machines or guest OSes. 
+> As its name suggests, the Virtual Machine Manager(VMM) or hypersior is a piece of software that is responsible for monitoring and controlling virtual machines or guest OSes. 
 
 The hypervisor/VMM is responsible for 
 * Ensuring different virtualization management tasks, such as providing virtual hardware, virtual machine lift cycle management, migrating virtual machines, allocating resources in real time, defining policies for virtual machine management, and so on.  
@@ -63,3 +63,11 @@ The hypervisor/VMM is responsible for
 * Allocating the resources requested by these guest OSes.  
 
 The system hardware, such as the processor, memory, and so on, must be allocated to these guest OSes according to their configuration, and the VMM can take care of this task. Due to this, the VMM is a critical component in a virtualization environment.
+
+### Two types of hypervisor
+> Hypervisors are mainly categorized as either type 1 or type 2 hypervisors, based on where they reside in the systems or, in other terms, whether the underlying OS is present in the system or not. But there is no clear or standard definition of type 1 and type 2 hypervisors.  
+
+1. If the VMM/hypervisor runs directly on top of the hardware, its generally considered to be a type 1 hypervisor.  
+   It doesn't need any host OS. You can directly install it on a bare-metal system and make it ready to host virtual machines.  
+   Type 1 hypervisor directly interacts with the system hardware. Type 1 hypervisors are also called bare-metal, embedded, or native hypervisors.  
+3. If there is an OS present, and if the VMM/hypervisor operates as a separate layer, it will be considered as a type 2 hypervisor.  
