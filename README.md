@@ -93,5 +93,11 @@ The following table is a list of open source virtualization projects in Linux:
 | Xen            | Full and Paravirtualization |
 | ...            | ...                         |
 
-
-
+* Xen 
+  > Xen originated at the University of Cambridge as a research project. The first public release of Xen was in 2003. On 15 Apirl 2013, the Xen project was moved to the Linux Foundation as a collaborative project.  
+ 
+  There are four main building items for Xen:  
+  * Xen hypervisor: The integral part of Xen that handles intercommunication between the physical hardware and virtual machine(s). It handles all interrupts, times, CPU and memory requests, and hardware iteraction.
+  * Dom0: Xen's control domain, which controls a virtual machine's environment. The main part of it is called QEMU, a piece of software that emulates a regular computer system by doing binary translation to emulate a CPU.
+  * Management utilities: Command-line utilities and GUI utilities that we use to manage the overall Xen environment.
+  * Virtual machines(unprivileged domains, DomU): Guests that we're running on Xen.
