@@ -16,8 +16,14 @@ Jan 31, 2022
 
 # Table
 1. [Software Env](#softwareenv)
-2. [VM installation](#vm-installation)
-3. [Appendix: Get the kickstart file](#appendix)
+   - Install virtualization softwares
+   - Enableing the virtualization env
+   - Install Apache web server and mount ISO for remote installation
+3. [VM installation](#vm-installation)
+   - Manually install
+   - Automating install -- use kickstart file
+   - Batch install
+5. [Appendix: Get the kickstart file](#appendix)
  
 
 ## SoftwareEnv
