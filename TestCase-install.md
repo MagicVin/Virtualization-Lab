@@ -14,7 +14,13 @@
 **Test date**  
 Jan 31, 2022
 
-## Software Env
+# Table
+1. [Software Env](#softwareenv)
+2. [VM installation](#vm-installation)
+3. [Appendix: Get the kickstart file](#appendix)
+ 
+
+## SoftwareEnv
 
 ### Install virtualization softwares
   ```
@@ -70,7 +76,7 @@ Jan 31, 2022
   * http://192.168.10.10/iso  
   * http://192.168.122.1/iso  
   
-## VM installation
+## VM-installation
 ### Manually install
 * Manually install from **CDROM**, commands as the following shows
 ```
@@ -101,7 +107,7 @@ Jan 31, 2022
 ```
 # virt-install --debug --virt-type kvm --name kvm-auto-net --vcpus 2 --ram 2048 --os-variant rhel8.0 --location http://192.168.122.1/iso --network default --graphics vnc --disk size=10 -x ks=http://192.168.122.1/ks.cfg
 ```
-## Batch install
+### Batch install
 Automating create **five VMs**, script: batch-vm.sh
 ```
 #!/bin/bash
@@ -126,7 +132,8 @@ for i in {1..5} ;{
 ```
 Perform the script and then wait it done.
 
-## Appendix: Get the kickstart file
+## Appendix
+(Get the kickstart file)
 1. Create the virtual disk  
 ```
 # qemu-img create -f qcow2 /media/qemu/data.qcow2 10G
