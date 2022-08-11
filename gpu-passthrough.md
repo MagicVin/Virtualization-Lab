@@ -53,7 +53,7 @@
     
 </ol>
 
-<h2 name="kernel_pthr">Platform virtualization support</h2>
+<h2 name="kernel_pthr">Kernel passthrough support</h2>
 
 - Grub config list 
     - Disable selinux
@@ -66,7 +66,7 @@
         ```
     - Enable IOMMU(virtualization technoligy)
 
-        The pt option only enables IOMMU for devices used in passthrough and will provide better host performance. However, the option may not be supported on all hardware. Revert to previous option if the pt option doesn't work for your host. [From](https://access.redhat.com/documentation/en-us/red_hat_virtualization/4.1/html/installation_guide/appe-configuring_a_hypervisor_host_for_pci_passthrough)
+        The **pt** option only enables IOMMU for devices used in passthrough and will provide better host performance. However, the option may not be supported on all hardware. Revert to previous option if the pt option doesn't work for your host. [From](https://access.redhat.com/documentation/en-us/red_hat_virtualization/4.1/html/installation_guide/appe-configuring_a_hypervisor_host_for_pci_passthrough)
         ```
         iommu=pt intel_iommu=on
         ```
