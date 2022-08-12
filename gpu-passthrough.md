@@ -105,24 +105,89 @@
         ```
     
     
-    - Isolate module for passthrough
+    - Isolate GPU modules and PCIe devices for passthrough
         
-        Check out the GPU driver
+        <ol>
+            <li>Check GPU info</li>
+            
+        <ul>
+            <li>Check the GPU driver</li>
        
         ```
         # lspci -v | awk -F': ' '/NVIDIA/,/Kernel modules/ { if ( $0 ~ /Kernel modules/ ) { gsub(",","");printf("%-s ", $NF) }} END { print }'
         nvidiafb nouveau snd_hda_intel
         ```
-
-        Check the GPU vender_id and device_id
+        <li>Check the GPU vender_id and device_id</li>
+        
         ```
         # lspci -nn | sed -n 's|^.*NVIDIA.*\[\([[:alnum:]]\{4\}\)\:\([[:alnum:]]\{4\}\)\].*$|\1:\2|p'
         10de:1c03
         10de:10f1
         ```
+        </ul>
+        
+        
+        <li>Methods to Isolate GPU</li>
+        <ul>
+        <li>Blacklisting the aboving drives/modules</li>
 
+        This setting tells the kernel prevent to use those hardwares which need to load drivers during loading process 
+ 
+        ``` 
+        # echo "install nvidiafb /bin/true" >> /etc/modprobe.d/local-blacklist.conf
+        # echo "install nouveau /bin/true" >> /etc/modprobe.d/local-blacklist.conf
+        # echo "install snd_hda_intel /bin/true" >> /etc/modprobe.d/local-blacklist.conf
+        ```
+        **Warning:**  (Re)move /etc/modprobe.conf, if present, as it supersedes anything in /etc/modprobe.d/* unless you add include /etc/modprobe.d [From](https://wiki.debian.org/KernelModuleBlacklisting)
 
+        <li>Using kernel command line</li>
+        
+        ```
+        modprobe.blacklist=nvidiafb,nouveau,snd_hda_intel
+        ```
 
+        <li>Use vfio driver to pre-handle GPU devices during kernel loading <a href="https://mathiashueber.com/windows-virtual-machine-gpu-passthrough-ubuntu/">From</a></li>
+        <ol>
+        <li>
+        Include vfio* drivers in initramfs, they will be loaded at boot time in the order below</li>
+
+        ```
+        # echo "vfio vfio_iommu_type1 vfio_virqfd vfio_pci ids=10de:1c03,10de:10f1" >> /etc/initramfs-tools/modules
+        ```
+        <li>The vfio* drvivers should be loaded at boot time</li>
+        
+        ```
+        # echo "vfio vfio_iommu_type1 vfio_pci ids=10de:1c03,10de:10f1" >> /etc/modules
+        ```
+
+        <li>Set higher loading priority than GPU drivers</li>
+        
+        ```
+        # echo "softdep nouveau pre: vfio-pci" >> /etc/modprobe.d/nvidia.conf
+        # echo "softdep nvidiafb pre: vfio-pci" >> /etc/modprobe.d/nvidia.conf
+        # echo "softdep snd_hda_intel pre: vfio-pci" >> /etc/modprobe.d/nvidia.conf
+        ```
+
+        <li>Update vfio module changes</li>
+
+        ```
+        # echo "options vfio-pci ids=10de:1c03,10de:10f1" >> /etc/modprobe.d/vfio.conf
+        # update-initramfs -u -k all
+        # reboot
+        ```
+        **Note:** This method is much more complex but more safely 
+
+        </ol>
+        </ul>
+        </ol>
+
+- Grub settings
+
+    ```
+    # vim /etc/default/grub
+    GRUB_CMDLINE_LINUX="selinux=0 console=ttyS0,115200 iommu=pt intel_iommu=on pcie_acs_override=downstream,multifunction vfio_iommu_type1.allow_unsafe_interrupts=1 modprobe.blacklist=nvidiafb,nouveau,snd_hda_intel"
+    # update-grub && reboot
+    ```
 
 
 
@@ -134,7 +199,21 @@
 <li>
 <a href="https://www.gnu.org/software/grep/manual/html_node/Character-Classes-and-Bracket-Expressions.html">https://www.gnu.org/software/grep/manual/html_node/Character-Classes-and-Bracket-Expressions.html</a>
 </li>
+<li>
+<a href="https://wiki.archlinux.org/title/Kernel_module">https://wiki.archlinux.org/title/Kernel_module</a>
+</li>
+<li>
+<a href="https://unix.stackexchange.com/questions/276392/how-to-block-drivers-built-into-kernel-i-e-drivers-who-are-not-a-module">https://unix.stackexchange.com/questions/276392/how-to-block-drivers-built-into-kernel-i-e-drivers-who-are-not-a-module</a>
+</li>
+<li>
+<a href="https://www.kernel.org/doc/html/v4.10/admin-guide/kernel-parameters.html">https://www.kernel.org/doc/html/v4.10/admin-guide/kernel-parameters.html</a>
+</li>
 
+<li>
+<a href="https://www.golinuxcloud.com/disable-blacklist-kernel-module-centos-7-8/">https://www.golinuxcloud.com/disable-blacklist-kernel-module-centos-7-8/</a>
+</li>
 
-
+<li>
+<a href="https://documentation.suse.com/sles/12-SP4/html/SLES-all/cha-mod.html">https://documentation.suse.com/sles/12-SP4/html/SLES-all/cha-mod.html</a>
+</li>
 </ol>
