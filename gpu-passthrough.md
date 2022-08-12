@@ -103,6 +103,25 @@
         ```
         echo 1 > /sys/module/kvm/parameters/allow_unsafe_assigned_interrupts
         ```
+    
+    
+    - Isolate module for passthrough
+        
+        Check out the GPU driver
+       
+        ```
+        # lspci -v | awk -F': ' '/NVIDIA/,/Kernel modules/ { if ( $0 ~ /Kernel modules/ ) { gsub(",","");printf("%-s ", $NF) }} END { print }'
+        nvidiafb nouveau snd_hda_intel
+        ```
+
+        Check the GPU vender_id and device_id
+        ```
+        # lspci -nn | sed -n 's|^.*NVIDIA.*\[\([[:alnum:]]\{4\}\)\:\([[:alnum:]]\{4\}\)\].*$|\1:\2|p'
+        10de:1c03
+        10de:10f1
+        ```
+
+
 
 
 
@@ -111,6 +130,9 @@
 <ol>
 <li>
 <a href="https://www.heiko-sieger.info/running-windows-10-on-linux-using-kvm-with-vga-passthrough">https://www.heiko-sieger.info/running-windows-10-on-linux-using-kvm-with-vga-passthrough</a>
+</li>
+<li>
+<a href="https://www.gnu.org/software/grep/manual/html_node/Character-Classes-and-Bracket-Expressions.html">https://www.gnu.org/software/grep/manual/html_node/Character-Classes-and-Bracket-Expressions.html</a>
 </li>
 
 
