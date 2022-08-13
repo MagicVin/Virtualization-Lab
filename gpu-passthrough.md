@@ -39,10 +39,14 @@
 <h2 name="platform">Platform virtualization support</h2>
 <ol>
    
+<li>CPU Hyperthreading enabled</li>   
 <li>BIOS virtualization feature enabled: VT-x and VT-d</li>
 <li>UEFI BOOT enabled</li>
 <li>Motherboard integrated video device supported and set as default graphic</li>
 
+    BIOS: Processor/Processor Configuration/Hyper Threading Technology -> Enabled
+    BIOS: Processor/Processor Configuration/VMX -> Enabled
+    BIOS: Processor/IIO Configuration/Intel VT for Directed I/O(VT-d) -> Enabled
     BIOS: Chipset/Miscellaneous Configuration/VGA Priority -> Onboard Device
     BIOS: Advanced/PCI Subsystem Settings/Above 4GB Decoding -> Enabled
     BIOS: Advanced/PCI Subsystem Settings/SR-IOV Support -> Enabled
