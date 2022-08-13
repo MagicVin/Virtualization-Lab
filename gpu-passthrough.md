@@ -41,7 +41,13 @@
    
 <li>BIOS virtualization feature enabled: VT-x and VT-d</li>
 <li>UEFI BOOT enabled</li>
-<li>Motherboard integrated VGA supported and set as default graphic</li>
+<li>Motherboard integrated video device supported and set as default graphic</li>
+
+    BIOS: Chipset/Miscellaneous Configuration/VGA Priority -> Onboard Device
+    BIOS: Advanced/PCI Subsystem Settings/Above 4GB Decoding -> Enabled
+    BIOS: Advanced/PCI Subsystem Settings/SR-IOV Support -> Enabled
+    BIOS: Advanced/CSM Configuration/Boot Mode -> UEFI Mode
+
 <li>CPU virtualization supported, the following result must be greater than zero</li>
        
     # egrep -c '(vmx|svm)' /proc/cpuinfo
