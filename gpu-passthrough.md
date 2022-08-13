@@ -57,6 +57,8 @@
 
 - Grub config list 
     - Disable selinux
+
+        
         ```
         selinux=0
         ```
@@ -104,6 +106,12 @@
         echo 1 > /sys/module/kvm/parameters/allow_unsafe_assigned_interrupts
         ```
     
+    - Ignore guest access to unhandled MSRs.
+    
+        ```
+        kvm.ignore_msrs=1
+        ```
+
     
     - Isolate GPU modules and PCIe devices for passthrough
         
@@ -185,7 +193,7 @@
 
     ```
     # vim /etc/default/grub
-    GRUB_CMDLINE_LINUX="selinux=0 console=ttyS0,115200 iommu=pt intel_iommu=on pcie_acs_override=downstream,multifunction vfio_iommu_type1.allow_unsafe_interrupts=1 modprobe.blacklist=nvidiafb,nouveau,snd_hda_intel"
+    GRUB_CMDLINE_LINUX="selinux=0 console=ttyS0,115200 iommu=pt intel_iommu=on kvm.ignore_msrs=1 pcie_acs_override=downstream,multifunction vfio_iommu_type1.allow_unsafe_interrupts=1 modprobe.blacklist=nvidiafb,nouveau,snd_hda_intel"
     # update-grub && reboot
     ```
 
@@ -215,5 +223,8 @@
 
 <li>
 <a href="https://documentation.suse.com/sles/12-SP4/html/SLES-all/cha-mod.html">https://documentation.suse.com/sles/12-SP4/html/SLES-all/cha-mod.html</a>
+</li>
+<li>
+<a href="https://pve.proxmox.com/wiki/Pci_passthrough">https://pve.proxmox.com/wiki/Pci_passthrough</a>
 </li>
 </ol>
