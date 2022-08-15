@@ -209,16 +209,30 @@
 
 <h2 name="drv_conf">Driver and PCIe device configuration</h2>
 
-- IOMMU groub check
+1. GPU iommu groub check
+     
 
     ```
     # iommu_group() { for i in /sys/kernel/iommu_groups/*/devices/*;do printf "%-12s %-4s" "IOMMU_GROUP" "`echo $i | sed 's|^.*iommu_groups/\([0-9]*\)/dev.*$|\1 |'`"; lspci -nns ${i##*/} ;done }
     # iommu_group | grep -i nvidia
     IOMMU_GROUP  71  65:00.0 VGA compatible controller [0300]: NVIDIA Corporation GP106 [GeForce GTX 1060 6GB] [10de:1c03] (rev a1)
     IOMMU_GROUP  71  65:00.1 Audio device [0403]: NVIDIA Corporation GP106 High Definition Audio Controller [10de:10f1] (rev a1)
-
     ```
-
+2. Install modules
+    ```
+    # modprobe vfio
+    # modprobe vfio_pci
+    # modprobe msr
+    # modprobe kvm
+    # modprobe kvm_intel
+    ```
+3. Bind devices
+    ```
+    # echo 10de 1c03 > /sys/bus/pci/drivers/vfio-pci/new_id
+    # echo 10de 10f1 > /sys/bus/pci/drivers/vfio-pci/new_id
+    # # ls /dev/vfio/
+    71  vfio
+    ```
 
 <h2 name="refer">References</h2>
 <ol>
@@ -249,3 +263,5 @@
 <a href="https://pve.proxmox.com/wiki/Pci_passthrough">https://pve.proxmox.com/wiki/Pci_passthrough</a>
 </li>
 </ol>
+
+
