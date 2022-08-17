@@ -262,6 +262,12 @@
 <li>
 <a href="https://pve.proxmox.com/wiki/Pci_passthrough">https://pve.proxmox.com/wiki/Pci_passthrough</a>
 </li>
+<li>
+<a href="https://www.kernel.org/doc/html/latest/admin-guide/mm/hugetlbpage.html#">https://www.kernel.org/doc/html/latest/admin-guide/mm/hugetlbpage.html#</a>
+</li>
+<li>
+<a href="https://events.linuxfoundation.org/wp-content/uploads/2022/03/Huge-Page-Concepts.pdf">https://events.linuxfoundation.org/wp-content/uploads/2022/03/Huge-Page-Concepts.pdf</a>
+</li>
 </ol>
 
 
