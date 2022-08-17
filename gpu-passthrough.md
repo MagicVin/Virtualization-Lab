@@ -233,6 +233,36 @@
     # # ls /dev/vfio/
     71  vfio
     ```
+4. Configure HugePages if has 64GB memory
+    ```
+    # vim /etc/security/limits.conf
+    soft memlock 60397977
+    hard memlock 60397977
+    # ulimit -l
+    # echo 16 > /sys/kernel/mm/hugepages/hugepages-1048576kB/nr_hugepages
+    # sysctl -n vm.nr_hugepages=16
+    # grep -i huge /proc/meminfo
+    AnonHugePages:         0 kB
+    ShmemHugePages:        0 kB
+    FileHugePages:         0 kB
+    HugePages_Total:      16
+    HugePages_Free:       16
+    HugePages_Rsvd:        0
+    HugePages_Surp:        0
+    Hugepagesize:       2048 kB
+    Hugetlb:        16809984 kB
+    # vim /etc/default/grub
+    GRUB_CMDLINE_LINUX="selinux=0 console=ttyS0,115200 iommu=pt intel_iommu=on kvm.ignore_msrs=1 pcie_acs_override=downstream,multifunction vfio_iommu_type1.allow_unsafe_interrupts=1 modprobe.blacklist=nvidiafb,nouveau,snd_hda_intel default_hugepagesz=1G"
+    # update-grub
+    # reboot
+
+    
+    ```
+
+
+
+
+
 
 <h2 name="refer">References</h2>
 <ol>
