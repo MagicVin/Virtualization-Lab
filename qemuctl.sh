@@ -83,7 +83,8 @@ diskcreate() {
 }
 
 hugepagecreate() {
-
+	# Temporarily Enabling 1 GB Hugepages
+	echo 2 > /sys/kernel/mm/hugepages/hugepages-1048576kB/nr_hugepages
 
 }
 
@@ -103,7 +104,9 @@ cmdrun() {
 		-rtc base=localtime,clock=host
 		-daemonize
 		-k en-us
-		-m 16G
+		-m 16G,slots=2 -mem-prealloc 
+		-object memory-backend-file,size=16G,share=on,mem-path=/dev/hugepages,share=on,id=node0
+		-numa node,nodeid=0,memdev=node0
 		-smp cpus=16,cores=16,sockets=1
 		-device pcie-root-port,chassis=0,id=pci.0,multifunction=on
 		-device vfio-pci,host=65:00.0,bus=pci.0
