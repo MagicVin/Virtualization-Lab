@@ -240,13 +240,15 @@
     71  vfio
     ```
 
-4. Increase the memory lock limit on the host (maxsize memory set to 32G)   
+<h2 name="perf">Performance tuning</h2>
+
+1. Increase the memory lock limit on the host (maxsize memory set to 32G)   
     ```
     # ulimit -l 33554432
     # ulimit -l
     33554432
     ```
-4. Confirm HugePages
+2. Confirm HugePages
     ```
     # grep -i huge /proc/meminfo
     AnonHugePages:         0 kB
@@ -259,15 +261,21 @@
     Hugepagesize:    1048576 kB
     Hugetlb:        33554432 kB
     # free -h
-               total        used        free      shared  buff/cache   available
+                   total        used        free      shared  buff/cache   available
     Mem:            62Gi        35Gi        26Gi        10Mi       572Mi        26Gi
     Swap:          8.0Gi          0B       8.0Gi
-
-
     ```
-
-
-
+3. Mount if there is no hugepage on the mount point
+    ```
+    # mount -t hugetlbfs hugetlbfs /dev/hugepages
+    # mount | grep -i huge
+    hugetlbfs on /dev/hugepages type hugetlbfs (rw,relatime,pagesize=1024M)
+    ```
+    **optional: release the hugepage**
+    ```
+    # sysctl vm.nr_hugepages=0
+    # umount /dev/hugepages
+    ```
 
 
 
