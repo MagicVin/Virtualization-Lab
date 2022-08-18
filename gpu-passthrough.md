@@ -197,13 +197,19 @@
 
         </ol>
         </ul>
+        <li>Enabling huge pages</li>
+        Setup 32G hugepages, 16G for guest using and the rest for other purpose
+
+        ```
+        default_hugepagesz=1G hugepagesz=1G hugepages=32
+        ```
         </ol>
 
 - Grub settings
 
     ```
     # vim /etc/default/grub
-    GRUB_CMDLINE_LINUX="selinux=0 console=ttyS0,115200 iommu=pt intel_iommu=on kvm.ignore_msrs=1 pcie_acs_override=downstream,multifunction vfio_iommu_type1.allow_unsafe_interrupts=1 modprobe.blacklist=nvidiafb,nouveau,snd_hda_intel"
+    GRUB_CMDLINE_LINUX="selinux=0 console=ttyS0,115200 iommu=pt intel_iommu=on kvm.ignore_msrs=1 pcie_acs_override=downstream,multifunction vfio_iommu_type1.allow_unsafe_interrupts=1 modprobe.blacklist=nvidiafb,nouveau,snd_hda_intel default_hugepagesz=1G hugepagesz=1G hugepages=32"
     # update-grub && reboot
     ```
 
@@ -233,30 +239,31 @@
     # # ls /dev/vfio/
     71  vfio
     ```
-4. Configure HugePages if has 64GB memory
+
+4. Increase the memory lock limit on the host (maxsize memory set to 32G)   
     ```
-    # vim /etc/security/limits.conf
-    soft memlock 60397977
-    hard memlock 60397977
+    # ulimit -l 33554432
     # ulimit -l
-    # echo 16 > /sys/kernel/mm/hugepages/hugepages-1048576kB/nr_hugepages
-    # sysctl -n vm.nr_hugepages=16
+    33554432
+    ```
+4. Confirm HugePages
+    ```
     # grep -i huge /proc/meminfo
     AnonHugePages:         0 kB
     ShmemHugePages:        0 kB
     FileHugePages:         0 kB
-    HugePages_Total:      16
-    HugePages_Free:       16
+    HugePages_Total:      32
+    HugePages_Free:       32
     HugePages_Rsvd:        0
     HugePages_Surp:        0
-    Hugepagesize:       2048 kB
-    Hugetlb:        16809984 kB
-    # vim /etc/default/grub
-    GRUB_CMDLINE_LINUX="selinux=0 console=ttyS0,115200 iommu=pt intel_iommu=on kvm.ignore_msrs=1 pcie_acs_override=downstream,multifunction vfio_iommu_type1.allow_unsafe_interrupts=1 modprobe.blacklist=nvidiafb,nouveau,snd_hda_intel default_hugepagesz=1G"
-    # update-grub
-    # reboot
+    Hugepagesize:    1048576 kB
+    Hugetlb:        33554432 kB
+    # free -h
+               total        used        free      shared  buff/cache   available
+    Mem:            62Gi        35Gi        26Gi        10Mi       572Mi        26Gi
+    Swap:          8.0Gi          0B       8.0Gi
 
-    
+
     ```
 
 
