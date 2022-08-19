@@ -7,7 +7,9 @@
     * [Driver and PCIe device configuration](#drv_conf)
     * [Performance tuning](#perf)
     * [Qemu-kvm setup](#qemu_setup)
+    * [Best Practicesl](#bestprac)
     * [Refernces](#refer)
+
 
 <h2>Test environment</h2>
     
@@ -20,12 +22,17 @@
     * x1 Mouse
     * x1 USB HUB
     * x1 500G samsung SSD
-    * x1 PCIe riser card
+    * x2 PCIe riser card
+    * x1 256G NVMe M.2 SSD
+    * x1 USB wireless adapters for vm
+    * x1 USB wireless adapters for host
     * x4 16G 2400MHz samsung DDR4
     * x1 QQ8Q(6240) CLX CPU
     * x1 500W power supply
     * x1 USB wifi connector
     * x2 NF-A6x25 PWM PREMIUM FANs
+    * x1 PCIe card for extend x4 ports USB 3.0 support
+    * x1 PCIe card for convert NVMe M.2 interface to PCIe
 
 * Software list
     * OS: Ubuntu 22.04 TLS
@@ -319,6 +326,99 @@
 
     ```
 
+<h2 name="bestprac">Best Practices</h2>
+
+1. Update /etc/default/grub 
+    * disable selinux
+    * enable console serial output
+    * enable virtualization
+    * enable iommu
+    * bypass unhandle msr
+    * enable acs group
+    * enable IOMMU Interrupt Remapping
+    * blakclist nvidiafb,nouveau,snd_hda_intel during kernel booting
+    * set default hugepages size by 1G
+    * set 32G hugepage pool
+    ```
+    GRUB_CMDLINE_LINUX="selinux=0 console=ttyS0,115200 iommu=pt intel_iommu=on kvm.ignore_msrs=1 pcie_acs_override=downstream,multifunction vfio_iommu_type1.allow_unsafe_interrupts=1 modprobe.blacklist=nvidiafb,nouveau,snd_hda_intel default_hugepagesz=1G hugepagesz=1G hugepages=32"
+    ```
+2. Update grub config and make the config works during the next boot
+    ```
+    # update-grub
+    # reboot
+    ```
+3. Define iommu group function
+    ```
+    # iommu_group() { for i in /sys/kernel/iommu_groups/*/devices/*;do printf "%-12s %-4s" "IOMMU_GROUP" "`echo $i | sed 's|^.*iommu_groups/\([0-9]*\)/dev.*$|\1 |'`"; lspci -nns ${i##*/} ;done }
+    ```
+4. Check out GPU iommu group
+    ```
+    # iommu_group | grep NVIDIA
+    IOMMU_GROUP  71  65:00.0 VGA compatible controller [0300]: NVIDIA Corporation GP106 [GeForce GTX 1060 6GB] [10de:1c03] (rev a1)
+    IOMMU_GROUP  71  65:00.1 Audio device [0403]: NVIDIA Corporation GP106 High Definition  Audio Controller [10de:10f1] (rev a1)
+    ```
+5. Check out additional USB3.0 controller installed from PCIe extend card
+    ```
+    # iommu_group | grep VIA
+    IOMMU_GROUP  90  b4:00.0 USB controller [0c03]: VIA Technologies, Inc. VL805/806 xHCI USB  3.0 Controller [1106:3483] (rev 01)
+    ```
+6. Check out NVMe controller
+    ```
+    # iommu_group | grep 6100p
+    IOMMU_GROUP  89  b3:00.0 Non-Volatile memory controller [0108]: Intel Corporation SSD Pro 7600p/760p/E 6100p Series [8086:f1a6] (rev 03)
+    ```
+7. Detach additinal USB3.0 controller and NVMe SSD controller from OS
+    ```
+    echo 0000:b4:00.0 > /sys/bus/pci/devices/0000:b4:00.0/driver/unbind
+    echo 0000:b3:00.0 > /sys/bus/pci/devices/0000:b3:00.0/driver/unbind
+    ```
+8. Install modules
+    ```
+    # modprobe vfio
+    # modprobe vfio_pci
+    # modprobe msr
+    # modprobe kvm
+    # modprobe kvm_intel
+    ```
+9. Check vfio group
+    ```
+    # ls /dev/vfio
+    vfio
+    ```
+10. Attach devices to vfio group
+    ```
+    # echo 10de 1c03 > /sys/bus/pci/drivers/vfio-pci/new_id
+    # echo 10de 10f1 > /sys/bus/pci/drivers/vfio-pci/new_id
+    # echo 1106 3483 > /sys/bus/pci/drivers/vfio-pci/new_id
+    # echo 8086 f1a6 > /sys/bus/pci/drivers/vfio-pci/new_id
+    ```
+11. Check vfio group again
+    ```
+    # ls /dev/vfio
+    71  89  90  vfio
+    ```
+12. Increase the memory lock limit
+    ```
+    # ulimit -l 33554432
+    # ulimit -l
+    33554432
+    ```
+13. Unlimit the max number of user processes
+    ```
+    # ulimit -u unlimited
+    # ulimit -u
+    unlimited
+    ```
+14. Create VM image
+    ```
+    # mkdir /data
+    # qemu-img create -f raw -o preallocation=full /data/img/win10-disk0.img 60G
+    Formatting '/data/img/win10-disk0.img', fmt=raw size=64424509440 preallocation=full
+    ```
+15. Start OS installation
+    ```
+    # taskset -c 14-17,32-35 qemu-system-x86_64 -enable-kvm -machine type=q35, accel=kvm -nic none -vga none -serial none -parallel none -nographic -cpu host,kvm=off -rtc base=localtime,clock=host -daemonize -k en-us -m 16G,slots=2 -mem-prealloc -object memory-backend-file,size=16G,share=on,mem-path=/dev/hugepages,share=on,id=node0 -numa node,nodeid=0,memdev=node0 -smp cpus=16,cores=16,sockets=1 -device pcie-root-port,chassis=0,id=pci.0,multifunction=on -device vfio-pci,host=65:00.0,bus=pci.0 -device pcie-root-port,chassis=1,id=pci.1,multifunction=on -device vfio-pci,host=65:00.1,bus=pci.1 -device pcie-root-port,chassis=2,id=pci.2,multifunction=on -device vfio-pci,host=b3:00.0,bus=pci.2 -device pcie-root-port,chassis=3,id=pci.3,multifunction=on -device vfio-pci,host=b4:00.0,bus=pci.3 -drive id=disk0,if=virtio,cache=none,format=raw,file=/data/img/win10-disk0.img -drive file=/data/iso/Windows10-Jun19-2022.iso,index=1,media=cdrom -boot dc -bios /usr/share/ovmf/OVMF.fd
+    ```
 
 
 <h2 name="refer">References</h2>
