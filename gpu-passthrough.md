@@ -68,7 +68,6 @@
 - Grub config list 
     - Disable selinux
 
-        
         ```
         selinux=0
         ```
@@ -275,6 +274,49 @@
     ```
     # sysctl vm.nr_hugepages=0
     # umount /dev/hugepages
+    ```
+4. Enable OVMF for UEFI support on QEMU
+
+    OVMF is a port of Intel's tianocore firmware to the qemu virtual machine. This allows easy debugging and experimentation with UEFI firmware; either for testing Ubuntu or using the (included) EFI shell. [From](https://wiki.ubuntu.com/UEFI/OVMF)
+
+    ```
+    # apt install ovmf 
+    ```
+
+<h2 name="qemu_setup">Qemu-kvm setup</h2>
+    
+1. Install qemu 
+    ```
+    # apt-get install virt-manager libvirt-daemon -y 
+    ```
+2. qemu cmd
+    ```
+    # taskset -c 14-17,32-35 qemu-system-x86_64 \
+    -enable-kvm \ 
+    -machine type=q35, accel=kvm \
+    -nic none \
+    -vga none \
+    -serial none \
+    -parallel none \
+    -nographic \
+    -cpu host,kvm=off \
+    -rtc base=localtime,clock=host \
+    -daemonize \
+    -m 16G,slots=2 -mem-prealloc \
+    -object memory-backend-file,size=16G,share=on,mem-path=/dev/hugepages,share=on,id=node0 \
+    -numa node,nodeid=0,memdev=node0 \
+    -smp cpus=8,cores=8,sockets=1 \
+    -device pcie-root-port,chassis=0,id=pci.0,multifunction=on \
+    -device vfio-pci,host=65:00.0,bus=pci.0 \
+    -device pcie-root-port,chassis=1,id=pci.1,multifunction=on \
+    -device vfio-pci,host=65:00.1,bus=pci.1 \
+    -device pcie-root-port,chassis=2,id=pci.2,multifunction=on \
+    -device vfio-pci,host=b3:00.0,bus=pci.2 \
+    -drive id=disk0,if=virtio,cache=none,format=raw,file=/data/img/win10-disk0.img \
+    -drive file=/data/iso/Windows10-Jun19-2022.iso,index=1,media=cdrom \
+    -boot dc \
+    -bios /usr/share/ovmf/OVMF.fd
+
     ```
 
 
