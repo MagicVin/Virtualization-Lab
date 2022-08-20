@@ -328,7 +328,15 @@
 
 <h2 name="bestprac">Best Practices</h2>
 
-1. Update /etc/default/grub 
+1. Install software
+    ```
+    # apt-get install qemu-system-x86 virt-manager libvirt-daemon ovmf -y
+    # qemu-system-x86_64 --version
+    QEMU emulator version 6.2.0 (Debian 1:6.2+dfsg-2ubuntu6.3)
+    Copyright (c) 2003-2021 Fabrice Bellard and the QEMU Project developers
+
+    ```
+2. Update /etc/default/grub 
     * disable selinux
     * enable console serial output
     * enable virtualization
@@ -342,7 +350,7 @@
     ```
     GRUB_CMDLINE_LINUX="selinux=0 console=ttyS0,115200 iommu=pt intel_iommu=on kvm.ignore_msrs=1 pcie_acs_override=downstream,multifunction vfio_iommu_type1.allow_unsafe_interrupts=1 modprobe.blacklist=nvidiafb,nouveau,snd_hda_intel default_hugepagesz=1G hugepagesz=1G hugepages=32"
     ```
-2. Update grub config and make the config works during the next boot
+3. Update grub config and make the config works during the next boot
     ```
     # update-grub
     # reboot
@@ -417,8 +425,10 @@
     ```
 15. Start OS installation
     ```
-    # taskset -c 14-17,32-35 qemu-system-x86_64 -enable-kvm -machine type=q35, accel=kvm -nic none -vga none -serial none -parallel none -nographic -cpu host,kvm=off -rtc base=localtime,clock=host -daemonize -k en-us -m 16G,slots=2 -mem-prealloc -object memory-backend-file,size=16G,share=on,mem-path=/dev/hugepages,share=on,id=node0 -numa node,nodeid=0,memdev=node0 -smp cpus=16,cores=16,sockets=1 -device pcie-root-port,chassis=0,id=pci.0,multifunction=on -device vfio-pci,host=65:00.0,bus=pci.0 -device pcie-root-port,chassis=1,id=pci.1,multifunction=on -device vfio-pci,host=65:00.1,bus=pci.1 -device pcie-root-port,chassis=2,id=pci.2,multifunction=on -device vfio-pci,host=b3:00.0,bus=pci.2 -device pcie-root-port,chassis=3,id=pci.3,multifunction=on -device vfio-pci,host=b4:00.0,bus=pci.3 -drive id=disk0,if=virtio,cache=none,format=raw,file=/data/img/win10-disk0.img -drive file=/data/iso/Windows10-Jun19-2022.iso,index=1,media=cdrom -boot dc -bios /usr/share/ovmf/OVMF.fd
+    # taskset -c 14-17,32-35 qemu-system-x86_64 -enable-kvm -machine type=q35,accel=kvm -nic none -vga none -serial none -parallel none -cpu host,kvm=off -rtc base=localtime,clock=host -daemonize -k en-us -m 16G,maxmem=256G,slots=2 -mem-prealloc -overcommit mem-lock=on -object memory-backend-file,id=mem,size=16G,mem-path=/dev/hugepages,share=on -numa node,nodeid=0,memdev=mem -smp cpus=16,cores=16,sockets=1 -device pcie-root-port,chassis=0,id=pci.0,multifunction=on -device vfio-pci,host=65:00.0,bus=pci.0 -device pcie-root-port,chassis=1,id=pci.1,multifunction=on -device vfio-pci,host=65:00.1,bus=pci.1 -drive file=nvme://0000:b3:00.0/1,if=none,id=drive0 -device pcie-root-port,chassis=3,id=pci.3,multifunction=on -device vfio-pci,host=b4:00.0,bus=pci.3 -drive id=disk0,if=virtio,cache=none,format=raw,file=/data/img/win10-disk0.img -drive file=/data/iso/Windows10-Jun19-2022.iso,index=1,media=cdrom -boot dc -bios /usr/share/ovmf/OVMF.fd
     ```
+16. Connect to the monitor with the passthroughed GPU card
+17. Connect to the keyboard and mouse with the PCIe extend card for extend x4 ports usb3.0 
 
 
 <h2 name="refer">References</h2>
@@ -454,6 +464,18 @@
 </li>
 <li>
 <a href="https://events.linuxfoundation.org/wp-content/uploads/2022/03/Huge-Page-Concepts.pdf">https://events.linuxfoundation.org/wp-content/uploads/2022/03/Huge-Page-Concepts.pdf</a>
+</li>
+<li>
+<a href="https://www.qemu.org/docs/master/system/qemu-block-drivers.html">https://www.qemu.org/docs/master/system/qemu-block-drivers.html</a>
+</li>
+<li>
+<a href="https://www.qemu.org/docs/master/system/images.html#nvme-disk-images">https://www.qemu.org/docs/master/system/images.html#nvme-disk-images</a>
+</li>
+<li>
+<a href="https://blogs.oracle.com/linux/post/how-to-emulate-block-devices-with-qemu">https://blogs.oracle.com/linux/post/how-to-emulate-block-devices-with-qemu</a>
+</li>
+<li>
+<a href="https://events19.lfasiallc.com/wp-content/uploads/2017/11/Storage-Performance-Tuning-for-FAST-Virtual-Machines_Fam-Zheng.pdf">https://events19.lfasiallc.com/wp-content/uploads/2017/11/Storage-Performance-Tuning-for-FAST-Virtual-Machines_Fam-Zheng.pdf</a>
 </li>
 </ol>
 
