@@ -446,7 +446,18 @@
     ```
     -cpu host,kvm=off,hv_relaxed,hv_vapic,hv_time,hv_spinlocks=0x1fff
     ```
-17. 1:1 virtio device to IOThread mapping
+17. **Optional** 1:1 virtio device to IOThread mapping
+    ```
+    -object iothread,id=iothread0
+    -object iothread,id=iothread1 
+
+    -drive if=none,id=drive0,cache=none,aio=native,format=raw,file=filename 
+    -device virtio-blk-pci,drive=drive0,scsi=off,iothread=iothread0 
+
+    -drive if=none,id=drive1,cache=none,aio=native,format=raw,file=filename 
+    -device virtio-blk-pci,drive=drive1,scsi=off,iothread=iothread1 
+    ```
+18. Emulate NVMe device
 
     **Performance** [From](https://events19.lfasiallc.com/wp-content/uploads/2017/11/Storage-Performance-Tuning-for-FAST-Virtual-Machines_Fam-Zheng.pdf)
     
@@ -454,12 +465,12 @@
     - format: raw > qcow2
     - cache: none >  writeback/directsync/writeback > unsafe
 
+    The vm has 8 vCPU, so can set an NVMe device with 8 hardware queues
+    ```
+    -device nvme,drive=nvme0,serial=deadbeaf,num_queues=8
+    -drive file=/data/img/win10-disk0.img,if=none,format=raw,cache=none,aio=native,id=nvme0,index=3,media=disk
+    ```
 
-    ```
-    -object iothread,id=iothread0
-    -drive file=/data/img/win10-disk0.img,if=virtio,format=raw,cache=none,aio=native,id=drive0,index=3,media=disk
-    -device virtio-blk-pci,drive=drive0,scsi=off,iothread=iothread0
-    ```
 
 
 17. Start OS installation
@@ -467,8 +478,9 @@
     cmd=(
         taskset -c 14-17,32-35
         qemu-system-x86_64
+        -name win10
         -enable-kvm
-        -machine type=q35,accel=kvm
+        -machine type=q35,accel=kvm,hmat=on
         -nic none
         -vga none
         -serial none
@@ -477,26 +489,37 @@
         -rtc base=localtime,clock=host
         -daemonize
         -k en-us
-        -smp cpus=16,sockets=1,cores=8,threads=2
-        -m 16G,maxmem=256G,slots=2 -mem-prealloc -overcommit mem-lock=on
 
-        -object memory-backend-file,id=mem,size=16G,mem-path=/dev/hugepages,prealloc=on,share=on
-        -numa node,nodeid=0,memdev=mem
+        -m 16G,maxmem=256G,slots=2 -mem-prealloc -overcommit mem-lock=on
+        -smp cpus=8,sockets=1,cores=4,threads=2
+
+        -object memory-backend-file,id=mem,size=16G,mem-path=/dev/hugepages,prealloc=on,share=off,discard-data=on,host-nodes=0,policy=bind,align=1G,merge=on
+        -numa node,memdev=mem,cpus=0-7,nodeid=0,initiator=0
+
+        -numa cpu,node-id=0,socket-id=0,core-id=0,thread-id=0
+        -numa cpu,node-id=0,socket-id=0,core-id=1,thread-id=0
+        -numa cpu,node-id=0,socket-id=0,core-id=2,thread-id=0
+        -numa cpu,node-id=0,socket-id=0,core-id=3,thread-id=0
+        -numa cpu,node-id=0,socket-id=0,core-id=0,thread-id=1
+        -numa cpu,node-id=0,socket-id=0,core-id=1,thread-id=1
+        -numa cpu,node-id=0,socket-id=0,core-id=2,thread-id=1
+        -numa cpu,node-id=0,socket-id=0,core-id=3,thread-id=1
 
         -device pcie-root-port,chassis=0,id=pci.0,multifunction=on
-        -device vfio-pci,host=65:00.0,bus=pci.0
+        -device vfio-pci,host=65:00.0,bus=pci.0,x-no-kvm-intx=on
 
         -device pcie-root-port,chassis=1,id=pci.1,multifunction=on
-        -device vfio-pci,host=65:00.1,bus=pci.1
+        -device vfio-pci,host=65:00.1,bus=pci.1,x-no-kvm-intx=on
 
         -device pcie-root-port,chassis=3,id=pci.3,multifunction=on
-        -device vfio-pci,host=b4:00.0,bus=pci.3
+        -device vfio-pci,host=b4:00.0,bus=pci.3,x-no-kvm-intx=on
 
-        -drive file=/data/img/win10-disk0.img,if=virtio,format=raw,cache=none,index=3,media=disk
+        -device nvme,drive=nvme0,serial=deadbeaf,max_ioqpairs=8
+        -drive file=/data/img/win10-disk0.img,if=none,format=raw,cache=none,aio=native,id=nvme0,index=3,media=disk
 
         -drive file=/data/drv/virtio-win.iso,index=2,media=cdrom
         -drive file=/data/iso/Windows10-Jun19-2022.iso,index=1,media=cdrom
-        -boot dc
+        -boot menu=on
         -bios /usr/share/ovmf/OVMF.fd
     )
 
@@ -540,6 +563,13 @@
 1. qemu-system-x86_64 device.type
     ```
     # for name in `qemu-system-x86_64 --device help | sed -n 's/^.*"\(.*\)",.*$/\1/p'`;do qemu-system-x86_64 --device $name,help >> qemu-system-x86_64.device.type.txt ;done
+    ```
+2. Add x-no-kvm-intx=on
+    
+    pci_irq_handler: assertion `0 <= irq_num && irq_num < pci_num_pins' failed
+    
+    ```
+    -device vfio-pci,host=b4:00.0,bus=pci.3,x-no-kvm-intx=on
     ```
 
 
@@ -632,6 +662,9 @@
 </li>
 <li>
 <a href="https://null-src.com/posts/qemu-optimization/post.php">https://null-src.com/posts/qemu-optimization/post.php</a>
+</li>
+<li>
+<a href="https://www.linux-kvm.org/images/3/34/Kvm-forum-2013-block-dev-configuration.pdf">https://www.linux-kvm.org/images/3/34/Kvm-forum-2013-block-dev-configuration.pdf</a>
 </li>
 </ol>
 
