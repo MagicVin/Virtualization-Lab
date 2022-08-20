@@ -8,6 +8,7 @@
     * [Performance tuning](#perf)
     * [Qemu-kvm setup](#qemu_setup)
     * [Best Practicesl](#bestprac)
+    * [Mic](#mic)
     * [Refernces](#refer)
 
 
@@ -290,6 +291,11 @@
     # apt install ovmf 
     ```
 
+    qemu-system-x86_64 cmd
+    ```
+    -bios /usr/share/ovmf/OVMF.fd
+    ```
+
 <h2 name="qemu_setup">Qemu-kvm setup</h2>
     
 1. Install qemu 
@@ -431,7 +437,32 @@
     -rw-r--r-- 1 root root 531486720 Jul 24 11:28 /data/drv/virtio-win.iso
     ```
 
-16. Start OS installation
+    qemu-system-x86_64 cmd
+    ```
+    -drive file=/data/img/win10-disk0.img,if=virtio,format=raw,cache=none,aio=native,id=drive0,index=3,media=disk
+    -drive file=/data/drv/virtio-win.iso,index=2,media=cdrom
+    ```
+16. KVM on x86 implements Hyper-V Enlightenments for Windows guests
+    ```
+    -cpu host,kvm=off,hv_relaxed,hv_vapic,hv_time,hv_spinlocks=0x1fff
+    ```
+17. 1:1 virtio device to IOThread mapping
+
+    **Performance** [From](https://events19.lfasiallc.com/wp-content/uploads/2017/11/Storage-Performance-Tuning-for-FAST-Virtual-Machines_Fam-Zheng.pdf)
+    
+    - aio: native > threads
+    - format: raw > qcow2
+    - cache: none >  writeback/directsync/writeback > unsafe
+
+
+    ```
+    -object iothread,id=iothread0
+    -drive file=/data/img/win10-disk0.img,if=virtio,format=raw,cache=none,aio=native,id=drive0,index=3,media=disk
+    -device virtio-blk-pci,drive=drive0,scsi=off,iothread=iothread0
+    ```
+
+
+17. Start OS installation
     ```
     cmd=(
         taskset -c 14-17,32-35
@@ -442,7 +473,7 @@
         -vga none
         -serial none
         -parallel none
-        -cpu Cascadelake-Server,kvm=off
+        -cpu Cascadelake-Server,kvm=off,hv_relaxed,hv_vapic,hv_time,hv_spinlocks=0x1fff
         -rtc base=localtime,clock=host
         -daemonize
         -k en-us
@@ -504,6 +535,13 @@
     Mem:            62Gi        36Gi        20Gi        10Mi       5.3Gi        25Gi
     Swap:          8.0Gi          0B       8.0Gi
     ```
+<h2 name="mic">Mic</h2> 
+
+1. qemu-system-x86_64 device.type
+    ```
+    # for name in `qemu-system-x86_64 --device help | sed -n 's/^.*"\(.*\)",.*$/\1/p'`;do qemu-system-x86_64 --device $name,help >> qemu-system-x86_64.device.type.txt ;done
+    ```
+
 
 <h2 name="refer">References</h2>
 <ol>
@@ -562,6 +600,38 @@
 </li>
 <li>
 <a href="https://events19.linuxfoundation.org/wp-content/uploads/2017/12/Kashyap-Chamarthy_Effective-Virtual-CPU-Configuration-OSS-EU2018.pdf">https://events19.linuxfoundation.org/wp-content/uploads/2017/12/Kashyap-Chamarthy_Effective-Virtual-CPU-Configuration-OSS-EU2018.pdf</a>
+</li>
+<li>
+<a href="https://wiki.qemu.org/images/4/4e/Q35.pdf">https://wiki.qemu.org/images/4/4e/Q35.pdf</a>
+</li>
+<li>
+<a href="https://www.spice-space.org/index.html">https://www.spice-space.org/index.html</a>
+<li>
+<a href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/virtualization_deployment_and_administration_guide/chap-graphic_user_interface_tools_for_guest_virtual_machine_management">https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/virtualization_deployment_and_administration_guide/chap-graphic_user_interface_tools_for_guest_virtual_machine_management</a>
+</li>
+<li>
+<a href="https://wiki.archlinux.org/title/Network_bridge">https://wiki.archlinux.org/title/Network_bridge</a>
+</li>
+<li>
+<a href="https://wiki.gentoo.org/wiki/QEMU/Options">https://wiki.gentoo.org/wiki/QEMU/Options</a>
+</li>
+<li>
+<a href="https://bugzilla.kernel.org/show_bug.cgi?id=202055">https://bugzilla.kernel.org/show_bug.cgi?id=202055</a>
+</li>
+<li>
+<a href="https://fossies.org/linux/qemu/docs/hyperv.txt">https://fossies.org/linux/qemu/docs/hyperv.txt</a>
+</li>
+<li>
+<a href="https://www.qemu.org/docs/master/system/i386/hyperv.html">https://www.qemu.org/docs/master/system/i386/hyperv.html</a>
+</li>
+<li>
+<a href="https://documentation.suse.com/sles/12-SP4/html/SLES-all/cha-qemu-running.html">https://documentation.suse.com/sles/12-SP4/html/SLES-all/cha-qemu-running.html</a>
+</li>
+<li>
+<a href="https://www.kernel.org/doc/Documentation/IRQ-affinity.txt">https://www.kernel.org/doc/Documentation/IRQ-affinity.txt</a>
+</li>
+<li>
+<a href="https://null-src.com/posts/qemu-optimization/post.php">https://null-src.com/posts/qemu-optimization/post.php</a>
 </li>
 </ol>
 
