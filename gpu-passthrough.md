@@ -423,12 +423,21 @@
     # qemu-img create -f raw -o preallocation=full /data/img/win10-disk0.img 60G
     Formatting '/data/img/win10-disk0.img', fmt=raw size=64424509440 preallocation=full
     ```
-15. Start OS installation
+15. Download virtio-win drive
+    
+    To enable the virtio drive support for window
+    ```
+    # wget https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/archive-virtio/virtio-win-0.1.221-1/virtio-win.iso
+    # ls -l /data/drv/virtio-win.iso
+    -rw-r--r-- 1 root root 531486720 Jul 24 11:28 /data/drv/virtio-win.iso
+    ```
+
+16. Start OS installation
     ```
     # taskset -c 14-17,32-35 qemu-system-x86_64 -enable-kvm -machine type=q35,accel=kvm -nic none -vga none -serial none -parallel none -cpu host,kvm=off -rtc base=localtime,clock=host -daemonize -k en-us -m 16G,maxmem=256G,slots=2 -mem-prealloc -overcommit mem-lock=on -object memory-backend-file,id=mem,size=16G,mem-path=/dev/hugepages,share=on -numa node,nodeid=0,memdev=mem -smp cpus=16,cores=16,sockets=1 -device pcie-root-port,chassis=0,id=pci.0,multifunction=on -device vfio-pci,host=65:00.0,bus=pci.0 -device pcie-root-port,chassis=1,id=pci.1,multifunction=on -device vfio-pci,host=65:00.1,bus=pci.1 -drive file=nvme://0000:b3:00.0/1,if=none,id=drive0 -device pcie-root-port,chassis=3,id=pci.3,multifunction=on -device vfio-pci,host=b4:00.0,bus=pci.3 -drive id=disk0,if=virtio,cache=none,format=raw,file=/data/img/win10-disk0.img -drive file=/data/iso/Windows10-Jun19-2022.iso,index=1,media=cdrom -boot dc -bios /usr/share/ovmf/OVMF.fd
     ```
-16. Connect to the monitor with the passthroughed GPU card
-17. Connect to the keyboard and mouse with the PCIe extend card for extend x4 ports usb3.0 
+16. Switch the monitor to the passthroughed GPU card
+17. Connect the keyboard and mouse to the PCIe extend card which has USB support 
 
 
 <h2 name="refer">References</h2>
@@ -476,6 +485,12 @@
 </li>
 <li>
 <a href="https://events19.lfasiallc.com/wp-content/uploads/2017/11/Storage-Performance-Tuning-for-FAST-Virtual-Machines_Fam-Zheng.pdf">https://events19.lfasiallc.com/wp-content/uploads/2017/11/Storage-Performance-Tuning-for-FAST-Virtual-Machines_Fam-Zheng.pdf</a>
+</li>
+<li>
+<a href="https://github.com/virtio-win/virtio-win-pkg-scripts/blob/master/README.md">https://github.com/virtio-win/virtio-win-pkg-scripts/blob/master/README.md</a>
+</li>
+<li>
+<a href="https://docs.fedoraproject.org/en-US/quick-docs/creating-windows-virtual-machines-using-virtio-drivers/">https://docs.fedoraproject.org/en-US/quick-docs/creating-windows-virtual-machines-using-virtio-drivers/</a>
 </li>
 </ol>
 
