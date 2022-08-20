@@ -334,7 +334,6 @@
     # qemu-system-x86_64 --version
     QEMU emulator version 6.2.0 (Debian 1:6.2+dfsg-2ubuntu6.3)
     Copyright (c) 2003-2021 Fabrice Bellard and the QEMU Project developers
-
     ```
 2. Update /etc/default/grub 
     * disable selinux
@@ -434,10 +433,57 @@
 
 16. Start OS installation
     ```
-    # taskset -c 14-17,32-35 qemu-system-x86_64 -enable-kvm -machine type=q35,accel=kvm -nic none -vga none -serial none -parallel none -cpu host,kvm=off -rtc base=localtime,clock=host -daemonize -k en-us -m 16G,maxmem=256G,slots=2 -mem-prealloc -overcommit mem-lock=on -object memory-backend-file,id=mem,size=16G,mem-path=/dev/hugepages,share=on -numa node,nodeid=0,memdev=mem -smp cpus=16,cores=16,sockets=1 -device pcie-root-port,chassis=0,id=pci.0,multifunction=on -device vfio-pci,host=65:00.0,bus=pci.0 -device pcie-root-port,chassis=1,id=pci.1,multifunction=on -device vfio-pci,host=65:00.1,bus=pci.1 -drive file=nvme://0000:b3:00.0/1,if=none,id=drive0 -device pcie-root-port,chassis=3,id=pci.3,multifunction=on -device vfio-pci,host=b4:00.0,bus=pci.3 -drive id=disk0,if=virtio,cache=none,format=raw,file=/data/img/win10-disk0.img -drive file=/data/iso/Windows10-Jun19-2022.iso,index=1,media=cdrom -boot dc -bios /usr/share/ovmf/OVMF.fd
+    cmd=(
+        taskset -c 14-17,32-35
+        qemu-system-x86_64
+        -enable-kvm
+        -machine type=q35,accel=kvm
+        -nic none
+        -vga none
+        -serial none
+        -parallel none
+        -cpu Cascadelake-Server,kvm=off
+        -rtc base=localtime,clock=host
+        -daemonize
+        -k en-us
+        -smp cpus=16,sockets=1,cores=8,threads=2
+        -m 16G,maxmem=256G,slots=2 -mem-prealloc -overcommit mem-lock=on
+
+        -object memory-backend-file,id=mem,size=16G,mem-path=/dev/hugepages,prealloc=on,share=on
+        -numa node,nodeid=0,memdev=mem
+
+        -device pcie-root-port,chassis=0,id=pci.0,multifunction=on
+        -device vfio-pci,host=65:00.0,bus=pci.0
+
+        -device pcie-root-port,chassis=1,id=pci.1,multifunction=on
+        -device vfio-pci,host=65:00.1,bus=pci.1
+
+        -device pcie-root-port,chassis=3,id=pci.3,multifunction=on
+        -device vfio-pci,host=b4:00.0,bus=pci.3
+
+        -drive file=/data/img/win10-disk0.img,if=virtio,format=raw,cache=none,index=3,media=disk
+
+        -drive file=/data/drv/virtio-win.iso,index=2,media=cdrom
+        -drive file=/data/iso/Windows10-Jun19-2022.iso,index=1,media=cdrom
+        -boot dc
+        -bios /usr/share/ovmf/OVMF.fd
+    )
+
+
+    ${cmd[@]}
     ```
 16. Switch the monitor to the passthroughed GPU card
 17. Connect the keyboard and mouse to the PCIe extend card which has USB support 
+18. Install virtio driver during windows installation progress
+    
+    Steps:
+    1. Where do you want to install Windows? 
+    2. Load driver
+    3. Select the driver to install 
+        ```
+        RedHat VirtIO SCSI controller(E:\amd64\win10\viostor.inf)
+        ```
+    4. Next
 
 
 <h2 name="refer">References</h2>
@@ -491,6 +537,12 @@
 </li>
 <li>
 <a href="https://docs.fedoraproject.org/en-US/quick-docs/creating-windows-virtual-machines-using-virtio-drivers/">https://docs.fedoraproject.org/en-US/quick-docs/creating-windows-virtual-machines-using-virtio-drivers/</a>
+</li>
+<li>
+<a href="https://qemu-project.gitlab.io/qemu/system/qemu-cpu-models.html">https://qemu-project.gitlab.io/qemu/system/qemu-cpu-models.html</a>
+</li>
+<li>
+<a href="https://events19.linuxfoundation.org/wp-content/uploads/2017/12/Kashyap-Chamarthy_Effective-Virtual-CPU-Configuration-OSS-EU2018.pdf">https://events19.linuxfoundation.org/wp-content/uploads/2017/12/Kashyap-Chamarthy_Effective-Virtual-CPU-Configuration-OSS-EU2018.pdf</a>
 </li>
 </ol>
 
