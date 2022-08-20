@@ -476,15 +476,34 @@
 17. Connect the keyboard and mouse to the PCIe extend card which has USB support 
 18. Install virtio driver during windows installation progress
     
+    ```
     Steps:
     1. Where do you want to install Windows? 
     2. Load driver
     3. Select the driver to install 
-        ```
         RedHat VirtIO SCSI controller(E:\amd64\win10\viostor.inf)
-        ```
     4. Next
+    ```
+19. Check hugepage usage on the host 
 
+    There is 32G hugepage totally, 16G is using for the vm and another 16G is free for others
+    ```
+    # grep -i huge /proc/meminfo
+    AnonHugePages:      2048 kB
+    ShmemHugePages:        0 kB
+    FileHugePages:         0 kB
+    HugePages_Total:      32
+    HugePages_Free:       16
+    HugePages_Rsvd:        0
+    HugePages_Surp:        0
+    Hugepagesize:    1048576 kB
+    Hugetlb:        33554432 kB
+    
+    # free -h
+                   total        used        free      shared  buff/cache   available
+    Mem:            62Gi        36Gi        20Gi        10Mi       5.3Gi        25Gi
+    Swap:          8.0Gi          0B       8.0Gi
+    ```
 
 <h2 name="refer">References</h2>
 <ol>
