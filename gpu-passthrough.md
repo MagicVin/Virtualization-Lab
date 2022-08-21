@@ -470,8 +470,12 @@
     -device nvme,drive=nvme0,serial=deadbeaf,num_queues=8
     -drive file=/data/img/win10-disk0.img,if=none,format=raw,cache=none,aio=native,id=nvme0,index=3,media=disk
     ```
+19. Passthrough NVMe SSD
 
-
+    -drive file=nvme://HOST:BUS:SLOT.FUNC/NAMESPACE [From](https://www.qemu.org/docs/master/system/images.html#nvme-disk-images)
+    ```
+    -drive file=nvme://0000:b3:00.0/1
+    ```
 
 17. Start OS installation
     ```
@@ -515,14 +519,15 @@
         -device vfio-pci,host=b4:00.0,bus=pci.3,x-no-kvm-intx=on
 
         -device nvme,drive=nvme0,serial=deadbeaf,max_ioqpairs=8
-        -drive file=/data/img/win10-disk0.img,if=none,format=raw,cache=none,aio=native,id=nvme0,index=3,media=disk
+        -drive file=/data/img/win10-nvme0-os.img,if=none,format=raw,cache=none,aio=native,id=nvme0,index=3,media=disk
+
+        -drive file=nvme://0000:b3:00.0/1
 
         -drive file=/data/drv/virtio-win.iso,index=2,media=cdrom
         -drive file=/data/iso/Windows10-Jun19-2022.iso,index=1,media=cdrom
         -boot menu=on
         -bios /usr/share/ovmf/OVMF.fd
     )
-
 
     ${cmd[@]}
     ```
@@ -571,6 +576,17 @@
     ```
     -device vfio-pci,host=b4:00.0,bus=pci.3,x-no-kvm-intx=on
     ```
+
+    
+    INTx is the legacy PCI interrupt (ie. INTA, INTB, INTC, INTD).  This is
+    a level triggered interrupt therefore it continues to assert until the
+    device is serviced.  It must therefore be masked on the host while it
+    is handled by the guest.  There are two paths we can use for injecting
+    this interrupt into the VM and unmasking it on the host once the VM
+    samples the interrupt.  When KVM is used for acceleration, these happen
+    via direct connection between the vfio-pci and kvm modules using
+    eventfds and irqfds.  The x-no-kvm-intx option disables that path,
+    instead bouncing out to QEMU to do the same. [From](https://www.spinics.net/lists/kvm/msg161686.html)
 
 
 <h2 name="refer">References</h2>
