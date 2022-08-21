@@ -370,7 +370,7 @@
     IOMMU_GROUP  71  65:00.0 VGA compatible controller [0300]: NVIDIA Corporation GP106 [GeForce GTX 1060 6GB] [10de:1c03] (rev a1)
     IOMMU_GROUP  71  65:00.1 Audio device [0403]: NVIDIA Corporation GP106 High Definition  Audio Controller [10de:10f1] (rev a1)
     ```
-5. Check out additional USB3.0 controller installed from PCIe extend card
+5. Check out additional USB3.0 controller supported by PCIe extend card
     ```
     # iommu_group | grep VIA
     IOMMU_GROUP  90  b4:00.0 USB controller [0c03]: VIA Technologies, Inc. VL805/806 xHCI USB  3.0 Controller [1106:3483] (rev 01)
