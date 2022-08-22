@@ -576,6 +576,20 @@
     Mem:            62Gi        36Gi        20Gi        10Mi       5.3Gi        25Gi
     Swap:          8.0Gi          0B       8.0Gi
     ```
+20. CPU performance 
+    1. grub settings
+        - isolate cpu
+        - cstate=0 
+        - pstate=0
+
+
+        ```
+        # vim /etc/default/grub
+        selinux=0 console=ttyS0,115200 iommu=pt intel_iommu=on kvm.ignore_msrs=1 pcie_acs_override=downstream,multifunction vfio_iommu_type1.allow_unsafe_interrupts=1 modprobe.blacklist=nvidiafb,nouveau,snd_hda_intel default_hugepagesz=1G hugepagesz=1G hugepages=32 intel_idle.max_cstate=0 processor.max_cstate=0 intel_pstate=disable isolcpus=14-17,32-35
+        # update-grub
+        # reboot
+        ```
+    2. 
 <h2 name="mic">Mic</h2> 
 
 1. qemu-system-x86_64 device.type
