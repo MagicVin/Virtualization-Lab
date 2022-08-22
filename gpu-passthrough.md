@@ -589,7 +589,22 @@
         # update-grub
         # reboot
         ```
-    2. 
+    2. check cpu&vcpu mapping
+        ```
+        # pstree -pt $(pidof qemu-system-x86_64)
+        qemu-system-x86(2198)─┬─{CPU 0/KVM}(2220)
+                      ├─{CPU 1/KVM}(2221)
+                      ├─{CPU 2/KVM}(2222)
+                      ├─{CPU 3/KVM}(2223)
+                      ├─{CPU 4/KVM}(2224)
+                      ├─{CPU 5/KVM}(2225)
+                      ├─{CPU 6/KVM}(2226)
+                      ├─{CPU 7/KVM}(2227)
+                      ├─{call_rcu}(2199)
+                      ├─{gdbus}(2230)
+                      ├─{gmain}(2229)
+                      └─{worker}(2591)
+        ```
 <h2 name="mic">Mic</h2> 
 
 1. qemu-system-x86_64 device.type
