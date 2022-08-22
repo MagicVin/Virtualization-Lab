@@ -25,13 +25,25 @@
     * x1 500G samsung SSD
     * x2 PCIe riser card
     * x1 256G NVMe M.2 SSD
+    <div align="center">
+        <img src="./imgs/nvme.jpg" width=450>
+        <img src="./imgs/nvme-fan.jpg" width=450>
+    </div>
+
     * x1 USB wireless adapters for vm
     * x1 USB wireless adapters for host
     * x4 16G 2400MHz samsung DDR4
     * x1 QQ8Q(6240) CLX CPU
     * x1 500W power supply
     * x1 USB wifi connector
+    <div align="center">
+        <img src="./imgs/bp.jpg" width=450>
+    </div>
+    
     * x2 NF-A6x25 PWM PREMIUM FANs
+    <div align="center">
+        <img src="./imgs/heatsink.jpg" width=450>
+    </div>
     * x1 PCIe card for extend x4 ports USB 3.0 support
     * x1 PCIe card for convert NVMe M.2 interface to PCIe
 
