@@ -682,6 +682,9 @@
 <li>
 <a href="https://www.linux-kvm.org/images/3/34/Kvm-forum-2013-block-dev-configuration.pdf">https://www.linux-kvm.org/images/3/34/Kvm-forum-2013-block-dev-configuration.pdf</a>
 </li>
+<li>
+<a href="https://www.ni.com/en-us/support/documentation/supplemental/11/best-practices-for-using-multiple-network-interfaces--nics--with.html">https://www.ni.com/en-us/support/documentation/supplemental/11/best-practices-for-using-multiple-network-interfaces--nics--with.html</a>
+</li>
 </ol>
 
 
