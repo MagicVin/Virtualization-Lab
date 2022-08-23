@@ -1,0 +1,10 @@
+[Unit]
+Description=boot start
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/start.sh
+
+[Install]
+WantedBy=default.target

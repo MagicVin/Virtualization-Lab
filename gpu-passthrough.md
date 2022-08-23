@@ -727,6 +727,11 @@
 <li>
 <a href="https://www.ni.com/en-us/support/documentation/supplemental/11/best-practices-for-using-multiple-network-interfaces--nics--with.html">https://www.ni.com/en-us/support/documentation/supplemental/11/best-practices-for-using-multiple-network-interfaces--nics--with.html</a>
 </li>
+<li>
+<a href="https://qemu.readthedocs.io/en/latest/system/devices/nvme.html">https://qemu.readthedocs.io/en/latest/system/devices/nvme.html</a>
+</li>
+<li>
+<a href="https://superuser.com/questions/1403601/systemd-service-permission-denied">https://superuser.com/questions/1403601/systemd-service-permission-denied</a>
 </ol>
 
 
