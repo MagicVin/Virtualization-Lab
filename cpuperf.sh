@@ -14,8 +14,10 @@ usage_msg=$(cat<<-EOF
 
   $0 uncorefreq -q [freq]     -- fix uncore frequency                      
   $0 cpufreq    -q [freq]     -- fix cpu core frequency
-  $0 cpumax     -q [freq]     -- set maximum cpu performance
+  $0 cpumax                   -- set maximum cpu performance
   $0 gpufreq    -q [freq]     -- set gpu frequency
+
+  $0 print cpufreq   -- print current cpu frequency
 
   e.g.
     $0 pin -t 14-17,32-35 -n win10 -m 12-13   -- pin 14-17,32-35 for win10
@@ -89,7 +91,63 @@ manage_affinity() {
 	}
 }
 
-initconf() {
+init_cpufreq() {
+	online_cpu=`cat /sys/devices/system/cpu/online`
+	cpulist=(`lcpu $online_cpu`)
+
+	[ -r /sys/devices/system/cpu/cpufreq/policy0/scaling_min_freq ] || {
+		erro "Please enable \"Enhanced Intel SpeedStep(R) Tech(Pstate)\" on BIOS Setup"
+		exit -1
+	}
+
+	cpu_min_freq=()
+	cpu_max_freq=()
+	cpu_power_policy=()
+	cpu_cur_freq=()
+	for i in ${cpulist[@]} ;{
+		cpu_min_freq[i]=`cat /sys/devices/system/cpu/cpufreq/policy${i}/scaling_min_freq`
+		cpu_max_freq[i]=`cat /sys/devices/system/cpu/cpufreq/policy${i}/scaling_max_freq`
+		cpu_power_policy[i]=`cat /sys/devices/system/cpu/cpufreq/policy${i}/scaling_governor`
+		cpu_cur_freq[i]=`cat /sys/devices/system/cpu/cpufreq/policy${i}/scaling_cur_freq`
+	}
+}
+
+print_cpufreq() {
+	init_cpufreq
+	core_count=${#cpulist[@]}
+	[[ ${#cpu_min_freq[@]}     -eq $core_count ]]     &&
+	[[ ${#cpu_max_freq[@]}     -eq $core_count ]]     &&
+	[[ ${#cpu_power_policy[@]} -eq $core_count ]]     &&
+	[[ ${#cpu_cur_freq[@]}     -eq $core_count ]]     && {
+		printf "%-4s %-10s %-10s %-10s %-10s\n" "id" "Cur/MHz" "Max/MHz" "Min/MHz" "PowerPolicy"
+		for ((i=0;i<$core_count;i++)) ;{
+			printf "%-4s %-10s %-10s %-10s %-10s\n" $i \
+				$((${cpu_cur_freq[i]}/1000)) \
+				$((${cpu_max_freq[i]}/1000)) \
+				$((${cpu_min_freq[i]}/1000)) \
+				${cpu_power_policy[i]}
+		}
+	}
+}
+
+set_cpu_power_max() {
+	power_policy=performance
+	online_cpu=`cat /sys/devices/system/cpu/online`
+	cpulist=(`lcpu $online_cpu`)
+
+	[ -r /sys/devices/system/cpu/cpufreq/policy0/scaling_min_freq ] || {
+		erro "Please enable \"Enhanced Intel SpeedStep(R) Tech(Pstate)\" on BIOS Setup"
+		exit -1
+	}
+
+	for c in ${cpulist[@]} ;{
+		echo $power_policy > /sys/devices/system/cpu/cpufreq/policy${c}/scaling_governor
+		echo $c `cat /sys/devices/system/cpu/cpufreq/policy${c}/scaling_governor`
+	}
+}
+
+pin_initconf() {
+	[[ $vmpid ]] || [[ $name ]] || msarg $FUNCNAME
 	[[ ! $vmpid ]] && getpid
 	[[ ! $name ]]  && getname
 
@@ -106,8 +164,9 @@ initconf() {
 	} 
 }
 
-
 main() {
+	[ $# -eq 0 ] && msarg $FUNCNAME
+
 	while [ $# -gt 0 ]
 	do
 		case $1 in 
@@ -121,13 +180,33 @@ main() {
 			"gpufreq"   ) shift && cmds="gpu"                                       || msarg ;;
 			"pin"       ) shift && cmds="pin"                                       || msarg ;;  
 			"cgroup"    ) shift && cmds="cgroup"                                    || msarg ;;
+			"print"     ) shift && action="print"                                   || msarg ;;
 			*)                                                                         msarg ;;
 		esac
 	done
 
-	[[ $vmpid ]] || [[ $name ]] || msarg $FUNCNAME
-	[[ "$cmds" == "pin" ]] && initconf && set_affinity 
-
+	case $action in
+		"print")
+			case $cmds in 
+				"cpu") print_cpufreq  ;;
+				*)     echo "ongoing" ;;
+			esac
+		;;
+		*)
+			case $cmds in
+				"pin")
+					pin_initconf && set_affinity
+				;;
+				"cmax")
+					set_cpu_power_max
+					#set_cpu_freq_max
+				;;
+				*)
+					echo "ongoing"
+				;;
+			esac
+		;;
+	esac
 }
 
 main $@
