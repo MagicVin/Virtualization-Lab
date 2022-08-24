@@ -732,6 +732,10 @@
 </li>
 <li>
 <a href="https://superuser.com/questions/1403601/systemd-service-permission-denied">https://superuser.com/questions/1403601/systemd-service-permission-denied</a>
+</li>
+<li>
+<a href="https://www.intel.com/content/dam/support/us/en/documents/server-products/Intel_Xeon_Processor_Scalable_Family_BIOS_User_Guide.pdf">https://www.intel.com/content/dam/support/us/en/documents/server-products/Intel_Xeon_Processor_Scalable_Family_BIOS_User_Guide.pdf</a>
+</li>
 </ol>
 
 
