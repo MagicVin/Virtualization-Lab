@@ -759,6 +759,61 @@
      <div align="center">
         <img src="./imgs/disk-management.png" width=800>
     </div>
+23. Install windows10 on NVMe SSD(physical hardware)
+    - remove vNVMe img
+    ```
+    -device nvme,drive=nvme0,serial=deadbeaf,max_ioqpairs=8
+    -drive file=/data/img/win10-nvme0-os.img,if=none,format=raw,cache=none,aio=native,id=nvme0,index=3,media=disk
+    ```
+    - run cmds
+    ``` 
+    cmd=(
+        taskset -c 14-17,32-35
+        qemu-system-x86_64
+        -name win10,debug-threads=on
+        -enable-kvm
+        -machine type=q35,accel=kvm,hmat=on
+        -nic none
+        -vga none
+        -serial none
+        -parallel none
+        -cpu Cascadelake-Server,kvm=off,hv_relaxed,hv_vapic,hv_time,hv_spinlocks=0x1fff
+        -rtc base=localtime,clock=host
+        -daemonize
+        -k en-us
+
+        -m 16G,maxmem=256G,slots=2 -mem-prealloc -overcommit mem-lock=on
+        -smp cpus=8,sockets=1,cores=4,threads=2
+
+        -object memory-backend-file,id=mem,size=16G,mem-path=/dev/hugepages,prealloc=on,share=off,discard-data=on,host-nodes=0,policy=bind,align=1G,merge=on
+        -numa node,memdev=mem,cpus=0-7,nodeid=0,initiator=0
+
+        -numa cpu,node-id=0,socket-id=0,core-id=0,thread-id=0
+        -numa cpu,node-id=0,socket-id=0,core-id=1,thread-id=0
+        -numa cpu,node-id=0,socket-id=0,core-id=2,thread-id=0
+        -numa cpu,node-id=0,socket-id=0,core-id=3,thread-id=0
+        -numa cpu,node-id=0,socket-id=0,core-id=0,thread-id=1
+        -numa cpu,node-id=0,socket-id=0,core-id=1,thread-id=1
+        -numa cpu,node-id=0,socket-id=0,core-id=2,thread-id=1
+        -numa cpu,node-id=0,socket-id=0,core-id=3,thread-id=1
+
+        -device ioh3420,bus=pcie.0,addr=1c.0,multifunction=on,port=1,chassis=1,id=root.1
+        -device vfio-pci,host=65:00.0,bus=root.1,addr=00.0,multifunction=on,x-vga=on
+        -device vfio-pci,host=65:00.1,bus=root.1,addr=00.1
+
+        -device vfio-pci,host=b4:00.0,bus=pcie.0
+
+        -drive file.driver=nvme,file.device=0000:b3:00.0,file.namespace=1,media=disk
+
+        -drive file=/data/drv/virtio-win.iso,index=2,media=cdrom
+        -drive file=/data/iso/Windows10-Jun19-2022.iso,index=1,media=cdrom
+        -boot menu=on
+        -bios /usr/share/ovmf/OVMF.fd
+        )
+
+        echo ${cmd[@]}
+
+    ```
 
 <h2 name="mic">Mic</h2> 
 
