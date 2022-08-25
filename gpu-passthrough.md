@@ -581,15 +581,19 @@
         - isolate cpu
         - cstate=0 
         - pstate=0
-
-
         ```
         # vim /etc/default/grub
         selinux=0 console=ttyS0,115200 iommu=pt intel_iommu=on kvm.ignore_msrs=1 pcie_acs_override=downstream,multifunction vfio_iommu_type1.allow_unsafe_interrupts=1 modprobe.blacklist=nvidiafb,nouveau,snd_hda_intel default_hugepagesz=1G hugepagesz=1G hugepages=32 intel_idle.max_cstate=0 processor.max_cstate=0 intel_pstate=disable isolcpus=14-17,32-35
         # update-grub
         # reboot
         ```
-    2. check cpu&vcpu mapping
+    2. Enable Speedstep [From](https://www.intel.com/content/dam/support/us/en/documents/server-products/Intel_Xeon_Processor_Scalable_Family_BIOS_User_Guide.pdf)
+    
+    <div align="center">
+        <img src="./imgs/intel-speedstep.png" width=600>
+    </div>
+
+    3. check cpu&vcpu mapping
         ```
         # pstree -pt $(pidof qemu-system-x86_64)
         qemu-system-x86(2198)─┬─{CPU 0/KVM}(2220)
@@ -605,6 +609,157 @@
                       ├─{gmain}(2229)
                       └─{worker}(2591)
         ```
+
+    3. pin cpu using taskset
+        ```
+        # ./cpuperf.sh pin -t 14-17,32-35 -n win10 -m 12-13
+        status: win10 -- 2278
+        -- physical-thread: 14   15   16   17   32   33   34   35
+        -- virutal--thread: 2300 2301 2302 2303 2304 2305 2306 2307
+
+        -- manage---thread: 12-13
+        -- manage--vthread: 2278 2279 2310 2309 2289
+        -- taskset -pc 14 2300
+        -- pid 2300's current affinity list: 14-17,32-35
+        -- pid 2300's new affinity list: 14
+        -- taskset -pc 15 2301
+        -- pid 2301's current affinity list: 14-17,32-35
+        -- pid 2301's new affinity list: 15
+        -- taskset -pc 16 2302
+        -- pid 2302's current affinity list: 14-17,32-35
+        -- pid 2302's new affinity list: 16
+        -- taskset -pc 17 2303
+        -- pid 2303's current affinity list: 14-17,32-35
+        -- pid 2303's new affinity list: 17
+        -- taskset -pc 32 2304
+        -- pid 2304's current affinity list: 14-17,32-35
+        -- pid 2304's new affinity list: 32
+        -- taskset -pc 33 2305
+        -- pid 2305's current affinity list: 14-17,32-35
+        -- pid 2305's new affinity list: 33
+        -- taskset -pc 34 2306
+        -- pid 2306's current affinity list: 14-17,32-35
+        -- pid 2306's new affinity list: 34
+        -- taskset -pc 35 2307
+        -- pid 2307's current affinity list: 14-17,32-35
+        -- pid 2307's new affinity list: 35
+        -- taskset -pc 12-13 2278
+        -- pid 2278's current affinity list: 14-17,32-35
+        -- pid 2278's new affinity list: 12,13
+        -- taskset -pc 12-13 2279
+        -- pid 2279's current affinity list: 14-17,32-35
+        -- pid 2279's new affinity list: 12,13
+        -- taskset -pc 12-13 2310
+        -- pid 2310's current affinity list: 14-17,32-35
+        -- pid 2310's new affinity list: 12,13
+        -- taskset -pc 12-13 2309
+        -- pid 2309's current affinity list: 14-17,32-35
+        -- pid 2309's new affinity list: 12,13
+        -- taskset -pc 12-13 2289
+        -- pid 2289's current affinity list: 14-17,32-35
+        -- pid 2289's new affinity list: 12,13
+        
+        # ./cpuperf.sh print cpufreq
+        id   Cur/MHz    Max/MHz    Min/MHz    PowerPolicy
+        0    3102       2401       1000       performance
+        1    3100       2401       1000       performance
+        2    3100       2401       1000       performance
+        3    3101       2401       1000       performance
+        4    3100       2401       1000       performance
+        5    3100       2401       1000       performance
+        6    3104       2401       1000       performance
+        7    3101       2401       1000       performance
+        8    3099       2401       1000       performance
+        9    3103       2401       1000       performance
+        10   3100       2401       1000       performance
+        11   3104       2401       1000       performance
+        12   3084       2401       1000       performance
+        13   3100       2401       1000       performance
+        14   3100       2401       1000       performance
+        15   3100       2401       1000       performance
+        16   3099       2401       1000       performance
+        17   3099       2401       1000       performance
+        18   3100       2401       1000       performance
+        19   3100       2401       1000       performance
+        20   3100       2401       1000       performance
+        21   3100       2401       1000       performance
+        22   3099       2401       1000       performance
+        23   3101       2401       1000       performance
+        24   3100       2401       1000       performance
+        25   3100       2401       1000       performance
+        26   3102       2401       1000       performance
+        27   3100       2401       1000       performance
+        28   3101       2401       1000       performance
+        29   3104       2401       1000       performance
+        30   3104       2401       1000       performance
+        31   3095       2401       1000       performance
+        32   3100       2401       1000       performance
+        33   3099       2401       1000       performance
+        34   3100       2401       1000       performance
+        35   3100       2401       1000       performance
+        ```
+      <div align="center">
+        <img src="./imgs/top.png" width=600>
+    </div>
+21. Boot failed after install nvidia driver
+22. Adjust commands
+    ```
+    cmd=(
+        taskset -c 14-17,32-35
+        qemu-system-x86_64
+        -name win10,debug-threads=on
+        -enable-kvm
+        -machine type=q35,accel=kvm,hmat=on
+        -nic none
+        -vga none
+        -serial none
+        -parallel none
+        -cpu Cascadelake-Server,kvm=off,hv_relaxed,hv_vapic,hv_time,hv_spinlocks=0x1fff
+        -rtc base=localtime,clock=host
+        -daemonize
+        -k en-us
+
+        -m 16G,maxmem=256G,slots=2 -mem-prealloc -overcommit mem-lock=on
+        -smp cpus=8,sockets=1,cores=4,threads=2
+
+        -object memory-backend-file,id=mem,size=16G,mem-path=/dev/hugepages,prealloc=on,share=off,discard-data=on,host-nodes=0,policy=bind,align=1G,merge=on
+        -numa node,memdev=mem,cpus=0-7,nodeid=0,initiator=0
+
+        -numa cpu,node-id=0,socket-id=0,core-id=0,thread-id=0
+        -numa cpu,node-id=0,socket-id=0,core-id=1,thread-id=0
+        -numa cpu,node-id=0,socket-id=0,core-id=2,thread-id=0
+        -numa cpu,node-id=0,socket-id=0,core-id=3,thread-id=0
+        -numa cpu,node-id=0,socket-id=0,core-id=0,thread-id=1
+        -numa cpu,node-id=0,socket-id=0,core-id=1,thread-id=1
+        -numa cpu,node-id=0,socket-id=0,core-id=2,thread-id=1
+        -numa cpu,node-id=0,socket-id=0,core-id=3,thread-id=1
+
+        -device nvme,drive=nvme0,serial=deadbeaf,max_ioqpairs=8
+        -drive file=/data/img/win10-nvme0-os.img,if=none,format=raw,cache=none,aio=native,id=nvme0,index=3,media=disk
+
+        -device ioh3420,bus=pcie.0,addr=1c.0,multifunction=on,port=1,chassis=1,id=root.1
+        -device vfio-pci,host=65:00.0,bus=root.1,addr=00.0,multifunction=on,x-vga=on
+        -device vfio-pci,host=65:00.1,bus=root.1,addr=00.1
+
+        -device vfio-pci,host=b4:00.0,bus=pcie.0
+
+        -drive file.driver=nvme,file.device=0000:b3:00.0,file.namespace=1,media=disk
+
+        -drive file=/data/drv/virtio-win.iso,index=2,media=cdrom
+        -drive file=/data/iso/Windows10-Jun19-2022.iso,index=1,media=cdrom
+        -boot menu=on
+        -bios /usr/share/ovmf/OVMF.fd
+    )
+
+    echo ${cmd[@]}
+    ```
+      <div align="center">
+        <img src="./imgs/device-manager.png" width=800>
+    </div>
+     <div align="center">
+        <img src="./imgs/disk-management.png" width=800>
+    </div>
+
 <h2 name="mic">Mic</h2> 
 
 1. qemu-system-x86_64 device.type
