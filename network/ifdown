@@ -1,0 +1,5 @@
+#!/bin/bash
+
+tapname=$1
+ip link delete dev $tapname
+

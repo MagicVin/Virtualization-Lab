@@ -1,0 +1,125 @@
+#!/bin/bash
+
+#
+# v1.0 
+# Aug 28, 2022
+# by v.xin.zhang@gmail.com
+# 
+
+erro() {
+	echo "  $1 error"
+	exit -1
+}
+
+netdev_scan() {
+	nic_devs="`ls /sys/class/net/ | xargs | awk '{for (i=1;i<=NF;i++) {printf "<"$i">"}} END {printf "\n"}'`"
+	test ${#nic_devs} -gt 0 || erro $FUNCNAME
+}
+
+ifbr_exist?() {
+	nobr_devs=${nic_devs//<$brname>}	
+	test ${#nobr_devs} -ne ${#nic_devs} 
+}
+
+ifbr_create() {
+	ip link add $brname type bridge || erro $FUNCNAME
+}
+
+ifbr_up?() {
+	brstate="`cat /sys/class/net/$brname/operstate`"
+	test "$brstate" == "up" 
+}
+
+ifbr_up() {
+	ip link set dev $brname up || erro $FUNCNAME
+}
+
+ifbr_ipexist?() {
+	ipinfo="`ip address show dev $brname | awk '/inet.*global/ {print $2}'`"
+	test $ipinfo
+}
+
+ifbr_ipexist() {
+	dhclient $brname || erro $FUNCNAME
+}
+
+ifnic_exist?() {
+	nonic_devs=${nic_devs//<$nicname>}
+	test ${#nonic_devs} -ne ${#nic_devs} || erro $FUNCNAME
+}
+
+ifnic_up?() {
+	nicstate="`cat /sys/class/net/$nicname/operstate`"
+	test "$nicstate" == "up"
+}
+
+ifnic_up() {
+	ip link set dev $nicname up || erro $FUNCNAME
+}
+
+ifnic_master?() {
+	nic_master="`ls /sys/class/net/${brname}/brif | xargs | awk '{for (i=1;i<=NF;i++) {printf "<"$i">"}} END {printf "\n"}'`"
+	nonic_master=${nic_master//<$nicname>}
+	test ${#nic_master} -gt 0 && 
+	test ${#nic_master} -ne ${#nonic_master}
+}
+
+ifnic_master() {
+	ip link set dev $nicname master $brname || erro $FUNCNAME
+}
+
+ifnic_ipclean?() {
+	ipinfo="`ip address show dev $nicname | awk '/inet.*global/ {print $2}'`"
+	test $ipinfo
+}
+
+ifnic_ipclean() {
+	ip address flush dev $nicname || erro $FUNCNAME
+}
+
+iftap_exist?() {
+	notap_devs=${nic_devs//<$tapname>}
+	test ${#notap_devs} -ne ${#nic_devs} 
+}
+
+iftap_create() {
+	ip tuntap add dev $tapname mode tap user $USER || erro $FUNCNAME
+}
+
+iftap_up?() {
+	tapstate="`cat /sys/class/net/$tapname/operstate`"
+	test "$tapstate" == "up"
+}
+
+iftap_up() {
+	ip link set dev $tapname up || erro $FUNCNAME
+}
+
+iftap_master?() {
+	notap_master=${nic_master//<$tapname>}
+	test ${#nic_master} -ne ${#notap_master}
+}
+
+iftap_master() {
+	ip link set dev $tapname master $brname || erro $FUNCNAME
+}
+
+br_up() {
+	nicname=enx00e04c330c6a
+	tapname=$1
+	brname=vbr0
+	netdev_scan
+	ifnic_exist?   && echo "  nic: $nicname existed"
+	ifbr_exist?    && echo "  br: $brname existed"   || ifbr_create 
+	ifbr_up?       && echo "  br: $brname up"        || ifbr_up
+	ifnic_up?      && echo "  nic up"                || ifnic_up
+	ifnic_ipclean? && echo "  nic ipclean"           || ifnic_ipclean 
+	ifnic_master?  && echo "  nic master"            || ifnic_master
+	ifbr_ipexist?  && echo "  br ipexist"            || ifbr_ipexist
+	iftap_exist?   && echo "  tap: $tapname existed" || iftap_create
+	iftap_up?      && echo "  tap up"                || iftap_up
+	iftap_master?  && echo "  tap master"            || iftap_master
+}
+
+test $1 || erro br_up
+br_up $1

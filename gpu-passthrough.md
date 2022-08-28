@@ -812,8 +812,130 @@
         )
 
         echo ${cmd[@]}
+    ```
+
+24. Build ubuntu22 guest for development
+25. Port sets
+    
+    1. QEMU is running, a monitor console is provided in order to provide several ways to interact with the virtual machine running. 
+   
+        ```
+        -monitor telnet:127.0.0.1:8999,server,nowait
+        ```
+        ```# telnet 127.0.0.1 8999```
+
+26. update conf
+    
+    1. Add bridge network between host and guest 
+    2. Add spice server, there are some problems with spice server
 
     ```
+    cmd=(
+        taskset -c 14-17,32-35
+        qemu-system-x86_64
+        -name win10,debug-threads=on
+        -machine type=q35,accel=kvm,hmat=on,vmport=off
+        -serial none
+        -parallel none
+        -cpu Cascadelake-Server,kvm=off,hv_relaxed,hv_vapic,hv_time,hv_spinlocks=0x1fff
+        -rtc base=localtime,clock=host
+        -daemonize
+        -k en-us
+
+        -m 16G,maxmem=256G,slots=2 -mem-prealloc -overcommit mem-lock=on
+        -smp cpus=8,sockets=1,cores=4,threads=2
+
+        -object memory-backend-file,id=mem,size=16G,mem-path=/dev/hugepages,prealloc=on,share=off,discard-data=on,host-nodes=0,policy=bind,align=1G,merge=on
+        -numa node,memdev=mem,cpus=0-7,nodeid=0,initiator=0
+
+        -numa cpu,node-id=0,socket-id=0,core-id=0,thread-id=0
+        -numa cpu,node-id=0,socket-id=0,core-id=1,thread-id=0
+        -numa cpu,node-id=0,socket-id=0,core-id=2,thread-id=0
+        -numa cpu,node-id=0,socket-id=0,core-id=3,thread-id=0
+        -numa cpu,node-id=0,socket-id=0,core-id=0,thread-id=1
+        -numa cpu,node-id=0,socket-id=0,core-id=1,thread-id=1
+        -numa cpu,node-id=0,socket-id=0,core-id=2,thread-id=1
+        -numa cpu,node-id=0,socket-id=0,core-id=3,thread-id=1
+
+        -device e1000,netdev=network0
+        -netdev tap,id=network0,ifname=tap0,vhostforce=on,script=/usr/local/bin/ifup,downscript=/usr/local/bin/ifdown
+
+        -vga qxl
+        -spice port=8998,addr=127.0.0.1,disable-ticketing=on
+
+        -device virtio-serial-pci,id=virtio-serial0,bus=pcie.0,addr=1d.0
+
+        -chardev pty,id=charserial0
+        -device isa-serial,chardev=charserial0,id=serial0
+        -chardev socket,id=charchannel0,path=/tmp/stream.sock,server=on,wait=off
+        -device virtserialport,bus=virtio-serial0.0,nr=1,chardev=charchannel0,id=channel0,name=org.spice-space.stream.0
+
+        -chardev spicevmc,id=charchannel1,name=vdagent
+        -device virtserialport,bus=virtio-serial0.0,nr=2,chardev=charchannel1,id=channel1,name=com.redhat.spice.0
+
+        -audiodev spice,id=snd0
+        -device ich9-intel-hda
+        -device hda-output,audiodev=snd0
+
+        -device ich9-usb-ehci1,id=usb
+        -device ich9-usb-uhci1,masterbus=usb.0,firstport=0,multifunction=on
+        -device ich9-usb-uhci2,masterbus=usb.0,firstport=2
+        -device ich9-usb-uhci3,masterbus=usb.0,firstport=4
+        -chardev spicevmc,name=usbredir,id=usbredirchardev1
+        -device usb-redir,chardev=usbredirchardev1,id=usbredirdev1
+        -chardev spicevmc,name=usbredir,id=usbredirchardev2
+        -device usb-redir,chardev=usbredirchardev2,id=usbredirdev2
+        -chardev spicevmc,name=usbredir,id=usbredirchardev3
+        -device usb-redir,chardev=usbredirchardev3,id=usbredirdev3
+
+        -monitor telnet:127.0.0.1:8999,server,nowait
+
+        -device ioh3420,bus=pcie.0,addr=1c.0,multifunction=on,port=1,chassis=1,id=root.1
+        -device vfio-pci,host=65:00.0,bus=root.1,addr=00.0,multifunction=on,x-vga=on
+        -device vfio-pci,host=65:00.1,bus=root.1,addr=00.1
+
+        -device vfio-pci,host=b4:00.0,bus=pcie.0
+
+        -drive file=/data/iso/Windows10-Jun19-2022.iso,index=0,media=cdrom
+
+        -device nvme,drive=nvme0,serial=deadbeaf,max_ioqpairs=8
+        -drive file=/data/img/win10-nvme0-os.img,if=none,format=raw,cache=none,aio=native,id=nvme0,index=1,media=disk
+
+        -drive file=/data/drv/virtio-win.iso,index=2,media=cdrom
+
+        -drive file.driver=nvme,file.device=0000:b3:00.0,file.namespace=1,media=disk
+
+        -boot order=dc,menu=on
+        -bios /usr/share/ovmf/OVMF.fd
+
+        -global kvm-pit.lost_tick_policy=delay
+        -global ICH9-LPC.disable_s3=1
+        -global ICH9-LPC.disable_s4=1
+        )
+
+        echo ${cmd[@]}
+
+    ```
+
+    <div align="center">
+        <img src="./imgs/task-nic.png" width=800>
+    </div>
+
+    <div align="center">
+        <img src="./imgs/dhcp-nic.png" width=800>
+    </div>
+
+    <div align="center">
+        <img src="./imgs/host-ip.png" width=800>
+    </div>
+
+    <div align="center">
+        <img src="./imgs/br_up.png" width=800>
+    </div>
+
+
+
+ 
 
 <h2 name="mic">Mic</h2> 
 
@@ -945,6 +1067,15 @@
 </li>
 <li>
 <a href="https://www.intel.com/content/dam/support/us/en/documents/server-products/Intel_Xeon_Processor_Scalable_Family_BIOS_User_Guide.pdf">https://www.intel.com/content/dam/support/us/en/documents/server-products/Intel_Xeon_Processor_Scalable_Family_BIOS_User_Guide.pdf</a>
+</li>
+<li>
+<a href="https://wiki.qemu.org/Documentation/Networking#Tap">https://wiki.qemu.org/Documentation/Networking#Tap</a>
+</li>
+<li>
+<a href="https://wiki.archlinux.org/title/QEMU">https://wiki.archlinux.org/title/QEMU</a>
+</li>
+<li>
+<a href="https://www.spice-space.org/spice-user-manual.html">https://www.spice-space.org/spice-user-manual.html</a>
 </li>
 </ol>
 

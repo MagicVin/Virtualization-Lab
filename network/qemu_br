@@ -1,0 +1,57 @@
+#!/bin/bash
+set -x
+bridge_setup() {
+  [[ -z `ip link show ${BRIDGE_NAME} | awk -v BR=${BRIDGE_NAME} '/BR/ {print}'` ]] && {
+    echo "  create bridge $BRIDGE_NAME"
+    ip link add $BRIDGE_NAME type bridge
+    echo "  clean IP for $NIC_NAME"
+    ip addr flush dev $NIC_NAME
+    echo "  add dev:$NIC_NAME to group:$BRIDGE_NAME"
+    ip link set $NIC_NAME master $BRIDGE_NAME
+    echo "  set $BRIDGE_NAME up"
+    ip link set dev $BRIDGE_NAME up
+    echo "  assign IP for $BRIDGE_NAME"
+    dhclient $BRIDGE_NAME
+  } || {
+    echo "  bridge: $BRIDGE_NAME has created"
+    br_state=`ip link show ${BRIDGE_NAME} | awk -v BR=${BRIDGE_NAME} '/BR/ {sub("^.*state","");print $1}'`
+    [ $br_state != "UP" ] && {
+      echo "  set $BRIDGE_NAME up"
+      ip link set dev $BRIDGE_NAME up
+      echo "assign IP for $BRIDGE_NAME"
+      dhclient $BRIDGE_NAME
+    }
+  }
+}
+tap_setup(){
+  [[ `ip link | grep "$1"` ]] && {
+    echo "  $1 has created"
+    tap_state=`ethtool $1 | awk '/Link detected/ {print $NF}'`
+    [ $tap_state != "yes" ] && {
+      echo "  add dev:$1 to group:$BRIDGE_NAME"
+      ip link set $1 master $BRIDGE_NAME
+    } || {
+      echo "  delete tap device: $1"
+      ip link delete dev $1
+      echo "  create tap_dev: $1"
+      ip tuntap add dev $1 mode tap user root
+      echo "  add dev:$1 to group:$BRIDGE_NAME"
+      ip link set $1 master $BRIDGE_NAME
+    }
+  } || {
+    echo "  create tap_dev: $1"
+    ip tuntap add dev $1 mode tap user root
+    echo "  add dev:$1 to group:$BRIDGE_NAME"
+    ip link set $1 master $BRIDGE_NAME
+  }
+  echo "  set dev:$1 up"
+  ip link set dev $1 up
+}
+main() {
+  [ -z "$1" ] && echo "  Error: no interface specified" && exit 1
+  NIC_NAME=xxxxxxx
+  BRIDGE_NAME=local-br0
+  bridge_setup
+  tap_setup $1
+}
+main $1
