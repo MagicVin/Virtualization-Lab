@@ -934,7 +934,20 @@
     </div>
 
 
+27. Restore steam app
 
+    <div align="center">
+        <img src="./imgs/steam-backup.png" width=800>
+    </div>
+    <div align="center">
+        <img src="./imgs/steam-store.png" width=800>
+    </div>
+    <div align="center">
+        <img src="./imgs/steam-restore1.png" width=800>
+    </div>
+    <div align="center">
+        <img src="./imgs/steam-restore2.png" width=800>
+    </div>
  
 
 <h2 name="mic">Mic</h2> 
