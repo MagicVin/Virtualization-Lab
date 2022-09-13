@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Aug 24, 2022
+# Sep 13, 2022
 # v.xin.zhang@gmail.com
-# 
+# v1.1
 
 usage_msg=$(cat<<-EOF
   
@@ -66,11 +66,11 @@ vcpulist() {
 }
 
 getpid() {
-	vmpid=`ps aux | sed -n "s/^root[[:space:]]*\([[:alnum:]]*\)[[:space:]].* qemu-system-x86_64 -name ${name}.*$/\1/p" | head -n1`
+	vmpid=`ps aux | sed -n "s/^[[:graph:]]*[[:space:]]*\([0-9]*\).*qemu.*-name [[:graph:]]*${name}[,].*$/\1/p"`
 }
 
 getname() {
-	name=`pstree -a $vmpid | sed 's/-/\n/g' | sed -n 's/^name \([[:alnum:]]*\).*$/\1/p'`
+	name=`pstree -a $vmpid | sed -n 's/^.*-name \([a-zA-Z0-9,-=]*\) -.*/\1/p' | sed 's/,//g;s/debug-threads=o[nf]*//g;s/[a-z]*=//g'`
 }
 
 set_affinity() {
